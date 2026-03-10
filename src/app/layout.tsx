@@ -61,7 +61,7 @@ export default function RootLayout({
                 href="/bank-statements"
                 className="text-[var(--muted)] hover:text-[var(--accent)] transition-colors"
               >
-                Bank statements
+                Bank statements wip
               </Link>
             </div>
           </nav>
