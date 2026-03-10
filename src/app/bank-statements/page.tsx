@@ -26,22 +26,20 @@ export default function BankStatementsPage() {
   const [uploadError, setUploadError] = useState("");
   const [uploadSuccess, setUploadSuccess] = useState("");
 
-  const loadList = async () => {
-    const res = await listBankStatements();
-    if (!res.ok) {
-      if (res.message === "Invalid token") {
-        router.push("/login");
-        return;
-      }
-      setError(res.message);
-    } else if ("data" in res) {
-      setStatements(res.data);
-    }
-    setLoading(false);
-  };
-
   useEffect(() => {
-    loadList();
+    (async () => {
+      const res = await listBankStatements();
+      if (!res.ok) {
+        if (res.message === "Invalid token") {
+          router.push("/login");
+          return;
+        }
+        setError(res.message);
+      } else if ("data" in res) {
+        setStatements(res.data);
+      }
+      setLoading(false);
+    })();
   }, [router]);
 
   async function handleUpload(e: React.FormEvent) {
