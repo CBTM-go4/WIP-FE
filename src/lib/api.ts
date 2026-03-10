@@ -103,7 +103,7 @@ export async function uploadBankStatement(file: File): Promise<ApiResponse<BankS
   }
   const formData = new FormData();
   formData.append("file", file);
-  const res = await fetch(`${API_URL}/bank-statements`, {
+  const res = await fetch(`${API_URL}bank-statements`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
