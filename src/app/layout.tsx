@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "WIP App",
+  title: "F35",
   description: "Work in progress – auth & users",
 };
 
@@ -30,7 +30,7 @@ export default function RootLayout({
         <header className="border-b border-[var(--border)] bg-[var(--card)]">
           <nav className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
             <Link href="/" className="text-lg font-semibold text-[var(--text)]">
-              WIP
+              Freedom 35
             </Link>
             <div className="flex gap-4">
               <Link
