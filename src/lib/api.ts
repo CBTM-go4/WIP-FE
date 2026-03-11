@@ -129,7 +129,7 @@ export async function listBankStatements() {
 export async function getBankStatementDownloadUrl(id: number): Promise<string | null> {
   const token = getToken();
   if (!token) return null;
-  const res = await fetch(`${API_URL}/bank-statements/${id}/download`, {
+  const res = await fetch(`${API_URL}bank-statements/${id}/download`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) return null;
