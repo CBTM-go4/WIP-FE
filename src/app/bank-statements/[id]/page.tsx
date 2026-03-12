@@ -39,6 +39,17 @@ function getMonthIncome(item: SpendingByMonthItem): number {
   return item.income ?? 0;
 }
 
+/** Format month string (e.g. "2024-01" or "2024-01-15") as "January 2024". */
+function formatMonthLabel(monthStr: string): string {
+  if (!monthStr) return monthStr;
+  const d = new Date(monthStr + (monthStr.length === 7 ? "-01" : ""));
+  if (Number.isNaN(d.getTime())) return monthStr;
+  return new Intl.DateTimeFormat("en-ZA", {
+    month: "long",
+    year: "numeric",
+  }).format(d);
+}
+
 export default function StatementDashboardPage() {
   const router = useRouter();
   const params = useParams();
@@ -209,7 +220,7 @@ export default function StatementDashboardPage() {
                 <div key={item.month} className="space-y-1">
                   <div className="flex justify-between text-sm">
                     <span className="font-medium text-[var(--text)]">
-                      {item.month}
+                      {formatMonthLabel(item.month)}
                     </span>
                     <span className="text-[var(--muted)]">
                       spent {formatCurrency(getMonthSpent(item))}
