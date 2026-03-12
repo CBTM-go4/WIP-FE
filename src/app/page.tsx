@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getBankStatementStats } from "@/lib/api";
 
@@ -11,6 +12,7 @@ function formatBytes(bytes: number) {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [stats, setStats] = useState<{
     count: number;
     totalSizeBytes: number;
@@ -20,15 +22,23 @@ export default function Home() {
 
   useEffect(() => {
     (async () => {
+      if (typeof window !== "undefined" && !localStorage.getItem("token")) {
+        router.replace("/login");
+        return;
+      }
       const res = await getBankStatementStats();
       setLoading(false);
+      if (!res.ok && res.message === "Invalid token") {
+        router.replace("/login");
+        return;
+      }
       if (res.ok && "data" in res) {
         setStats(res.data);
       } else {
         setStats({ count: 0, totalSizeBytes: 0, latestUploadAt: null });
       }
     })();
-  }, []);
+  }, [router]);
 
   return (
     <div className="py-8">
@@ -82,13 +92,7 @@ export default function Home() {
           </section>
 
           <div className="flex gap-4 flex-wrap">
-            <Link href="/register" className="btn-primary">
-              Create account
-            </Link>
-            <Link href="/login" className="btn-secondary">
-              Log in
-            </Link>
-            <Link href="/bank-statements" className="btn-secondary">
+            <Link href="/bank-statements" className="btn-primary">
               Bank statements
             </Link>
             <Link href="/users" className="btn-secondary">

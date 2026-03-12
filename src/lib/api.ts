@@ -64,6 +64,7 @@ export async function login(email: string, password: string) {
 export function logout() {
   if (typeof window !== "undefined") {
     localStorage.removeItem("token");
+    window.dispatchEvent(new CustomEvent("auth-change"));
   }
 }
 

@@ -21,7 +21,10 @@ export default function LoginPage() {
     const res = await login(email, password);
     setLoading(false);
     if (res.ok) {
-      router.push("/profile");
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("auth-change"));
+      }
+      router.push("/");
       router.refresh();
     } else {
       setError(res.message || "Login failed");
