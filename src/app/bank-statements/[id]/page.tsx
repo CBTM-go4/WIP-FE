@@ -64,6 +64,11 @@ export default function StatementDashboardPage() {
     );
   }, [transactions, search]);
 
+  const filteredTotal = useMemo(
+    () => filteredTransactions.reduce((sum, t) => sum + t.amount, 0),
+    [filteredTransactions]
+  );
+
   useEffect(() => {
     if (statementId == null || isNaN(statementId)) {
       setError("Invalid statement");
@@ -333,7 +338,7 @@ export default function StatementDashboardPage() {
               aria-label="Search transactions"
             />
           </div>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
             {filteredTransactions.length === 0 ? (
               <p className="text-sm text-[var(--muted)] py-8 text-center px-4">
                 {transactions.length === 0
@@ -342,8 +347,8 @@ export default function StatementDashboardPage() {
               </p>
             ) : (
               <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-[var(--border)] bg-[var(--bg)]">
+                <thead className="sticky top-0 z-10 bg-[var(--card)] shadow-sm">
+                  <tr className="border-b border-[var(--border)]">
                     <th className="text-left py-3 px-4 font-medium text-[var(--muted)]">
                       Date
                     </th>
@@ -386,6 +391,22 @@ export default function StatementDashboardPage() {
               </table>
             )}
           </div>
+          {filteredTransactions.length > 0 && (
+            <div className="px-4 py-3 border-t border-[var(--border)] bg-[var(--card)] flex flex-wrap items-center justify-between gap-2">
+              <span className="text-sm text-[var(--muted)]">
+                {filteredTransactions.length} transaction
+                {filteredTransactions.length !== 1 ? "s" : ""}
+                {search.trim() ? " (filtered)" : ""}
+              </span>
+              <span
+                className={`font-semibold ${
+                  filteredTotal >= 0 ? "text-green-600" : "text-[var(--error)]"
+                }`}
+              >
+                Total: {formatCurrency(filteredTotal)}
+              </span>
+            </div>
+          )}
         </div>
       </section>
     </div>
