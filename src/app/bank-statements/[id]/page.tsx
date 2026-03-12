@@ -27,18 +27,6 @@ function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
-function getMonthValue(item: SpendingByMonthItem): number {
-  return (item.spent ?? item.spending ?? 0) - (item.income ?? 0);
-}
-
-function getMonthSpent(item: SpendingByMonthItem): number {
-  return item.spent ?? item.spending ?? 0;
-}
-
-function getMonthIncome(item: SpendingByMonthItem): number {
-  return item.income ?? 0;
-}
-
 /** Format month string (e.g. "2024-01" or "2024-01-15") as "January 2024". */
 function formatMonthLabel(monthStr: string): string {
   if (!monthStr) return monthStr;
@@ -80,6 +68,29 @@ export default function StatementDashboardPage() {
     [filteredTransactions]
   );
 
+  /** Per-month stats from transactions: count, net total, total spent, total received. */
+  const monthlyBreakdown = useMemo(() => {
+    const byMonthKey: Record<
+      string,
+      { count: number; spent: number; received: number; net: number }
+    > = {};
+    for (const t of transactions) {
+      const dateStr = t.date ? String(t.date).slice(0, 7) : "";
+      if (!dateStr) continue;
+      if (!byMonthKey[dateStr]) {
+        byMonthKey[dateStr] = { count: 0, spent: 0, received: 0, net: 0 };
+      }
+      const row = byMonthKey[dateStr];
+      row.count += 1;
+      row.net += t.amount;
+      if (t.amount < 0) row.spent += Math.abs(t.amount);
+      else row.received += t.amount;
+    }
+    return Object.entries(byMonthKey)
+      .map(([month, data]) => ({ month, ...data }))
+      .sort((a, b) => b.month.localeCompare(a.month));
+  }, [transactions]);
+
   useEffect(() => {
     if (statementId == null || isNaN(statementId)) {
       setError("Invalid statement");
@@ -116,14 +127,6 @@ export default function StatementDashboardPage() {
       setLoading(false);
     })();
   }, [statementId, router]);
-
-  const maxByMonth = useMemo(() => {
-    if (byMonth.length === 0) return 1;
-    return Math.max(
-      ...byMonth.map((m) => Math.max(getMonthSpent(m), getMonthIncome(m))),
-      1
-    );
-  }, [byMonth]);
 
   const maxByCategory = useMemo(() => {
     if (byCategory.length === 0) return 1;
@@ -204,57 +207,66 @@ export default function StatementDashboardPage() {
         </div>
       </section>
 
-      {/* Monthly spending/income chart */}
+      {/* Monthly breakdown: transactions, net total, total spent, total received per month */}
       <section>
         <h2 className="text-lg font-semibold text-[var(--text)] mb-4">
-          Monthly spending & income
+          By month
         </h2>
-        <div className="card">
-          {byMonth.length === 0 ? (
+        {monthlyBreakdown.length === 0 ? (
+          <div className="card">
             <p className="text-sm text-[var(--muted)] py-4 text-center">
-              No monthly data
+              No transactions to break down by month
             </p>
-          ) : (
-            <div className="space-y-4">
-              {byMonth.map((item) => (
-                <div key={item.month} className="space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span className="font-medium text-[var(--text)]">
-                      {formatMonthLabel(item.month)}
-                    </span>
-                    <span className="text-[var(--muted)]">
-                      spent {formatCurrency(getMonthSpent(item))}
-                      {(item.income ?? 0) > 0 &&
-                        ` · in ${formatCurrency(getMonthIncome(item))}`}
-                    </span>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {monthlyBreakdown.map((row) => (
+              <div key={row.month} className="card">
+                <h3 className="font-semibold text-[var(--text)] mb-4">
+                  {formatMonthLabel(row.month)}
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div>
+                    <p className="text-xs font-medium text-[var(--muted)] uppercase tracking-wide">
+                      Transactions
+                    </p>
+                    <p className="text-lg font-bold text-[var(--text)] mt-0.5">
+                      {row.count}
+                    </p>
                   </div>
-                  <div className="flex gap-1 h-6 rounded overflow-hidden bg-[var(--border)]">
-                    {(item.spent ?? item.spending ?? 0) > 0 && (
-                      <div
-                        className="bg-[var(--error)]/80 min-w-[2px]"
-                        style={{
-                          width: `${
-                            (getMonthSpent(item) / maxByMonth) * 100
-                          }%`,
-                        }}
-                        title={formatCurrency(getMonthSpent(item))}
-                      />
-                    )}
-                    {(item.income ?? 0) > 0 && (
-                      <div
-                        className="bg-green-500/80 min-w-[2px]"
-                        style={{
-                          width: `${(getMonthIncome(item) / maxByMonth) * 100}%`,
-                        }}
-                        title={formatCurrency(getMonthIncome(item))}
-                      />
-                    )}
+                  <div>
+                    <p className="text-xs font-medium text-[var(--muted)] uppercase tracking-wide">
+                      Net total
+                    </p>
+                    <p
+                      className={`text-lg font-bold mt-0.5 ${
+                        row.net >= 0 ? "text-green-600" : "text-[var(--error)]"
+                      }`}
+                    >
+                      {formatCurrency(row.net)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-[var(--muted)] uppercase tracking-wide">
+                      Total spent
+                    </p>
+                    <p className="text-lg font-bold text-[var(--error)] mt-0.5">
+                      {formatCurrency(row.spent)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-[var(--muted)] uppercase tracking-wide">
+                      Total received
+                    </p>
+                    <p className="text-lg font-bold text-green-600 mt-0.5">
+                      {formatCurrency(row.received)}
+                    </p>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Spending by category */}
