@@ -125,11 +125,100 @@ export async function listBankStatements() {
   return api<BankStatement[]>("bank-statements");
 }
 
+/** Aggregated stats from bank statements (derived from list). */
+export type BankStatementStats = {
+  count: number;
+  totalSizeBytes: number;
+  latestUploadAt: string | null;
+};
+
+export async function getBankStatementStats(): Promise<
+  ApiResponse<BankStatementStats>
+> {
+  const res = await listBankStatements();
+  if (!res.ok) return res;
+  if (!("data" in res)) return res;
+  const list = res.data;
+  const totalSizeBytes = list.reduce((sum, s) => sum + s.file_size, 0);
+  const latestUploadAt =
+    list.length > 0
+      ? list.reduce((latest, s) =>
+          s.created_at > latest ? s.created_at : latest
+        , list[0].created_at)
+      : null;
+  return {
+    ok: true,
+    data: {
+      count: list.length,
+      totalSizeBytes,
+      latestUploadAt,
+    },
+  };
+}
+
+// --- Statement detail dashboard (summary, spending, transactions, recurring) ---
+
+export type StatementSummary = {
+  transaction_count: number;
+  net_total: number;
+  total_spent: number;
+  total_received: number;
+};
+
+export type SpendingByMonthItem = {
+  month: string;
+  spent?: number;
+  income?: number;
+  spending?: number;
+};
+
+export type SpendingByCategoryItem = {
+  category: string;
+  amount: number;
+};
+
+export type TransactionItem = {
+  id: string | number;
+  date: string;
+  description: string;
+  amount: number;
+  category?: string;
+};
+
+export type RecurringPaymentItem = {
+  id?: string | number;
+  name?: string;
+  description?: string;
+  amount: number;
+  frequency?: string;
+  next_date?: string;
+};
+
+export async function getStatementSummary(id: number) {
+  return api<StatementSummary>(`bank-statements/${id}/summary`);
+}
+
+export async function getSpendingByMonth(id: number) {
+  return api<SpendingByMonthItem[]>(`bank-statements/${id}/spending-by-month`);
+}
+
+export async function getSpendingByCategory(id: number) {
+  return api<SpendingByCategoryItem[]>(`bank-statements/${id}/spending-by-category`);
+}
+
+export async function getStatementTransactions(id: number) {
+  return api<TransactionItem[]>(`bank-statements/${id}/transactions`);
+}
+
+export async function getRecurringPayments(id: number) {
+  return api<RecurringPaymentItem[]>(`bank-statements/${id}/recurring-payments`);
+}
+
 /** Fetch the PDF blob and return an object URL for download/preview. Call revokeObjectURL when done. */
 export async function getBankStatementDownloadUrl(id: number): Promise<string | null> {
   const token = getToken();
   if (!token) return null;
-  const res = await fetch(`${API_URL}bank-statements/${id}/download`, {
+  const res = await fetch(`${API_URL}/bank-statements/${id}/download`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) return null;

@@ -154,13 +154,21 @@ export default function BankStatementsPage() {
                   {new Date(st.created_at).toLocaleDateString()}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => handleDownload(st)}
-                className="btn-secondary shrink-0"
-              >
-                Download
-              </button>
+              <div className="flex gap-2 shrink-0">
+                <Link
+                  href={`/bank-statements/${st.id}`}
+                  className="btn-primary"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => handleDownload(st)}
+                  className="btn-secondary"
+                >
+                  Download
+                </button>
+              </div>
             </li>
           ))}
         </ul>
