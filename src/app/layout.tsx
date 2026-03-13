@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "F35",
   description: "Work in progress – auth & users",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
