@@ -1,2 +1,2 @@
-export const DEMO_HIDE_AMOUNTS = true;
+export const DEMO_HIDE_AMOUNTS = false;
 
