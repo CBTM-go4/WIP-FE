@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { listBankStatements, getStatementTransactions } from "@/lib/api";
 import type { BankStatement, TransactionItem } from "@/lib/api";
+import { DEMO_HIDE_AMOUNTS } from "@/lib/demo";
 
 type TransactionWithStatement = TransactionItem & {
   statementId: number;
@@ -18,6 +19,10 @@ function formatCurrency(amount: number): string {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount);
+}
+
+function formatDisplayAmount(amount: number): string {
+  return DEMO_HIDE_AMOUNTS ? "R xxx" : formatCurrency(amount);
 }
 
 export default function AllTransactionsPage() {
@@ -206,7 +211,7 @@ export default function AllTransactionsPage() {
               filteredTotal >= 0 ? "text-[var(--success)]" : "text-[var(--error)]"
             }`}
           >
-            {formatCurrency(filteredTotal)}
+            {formatDisplayAmount(filteredTotal)}
           </p>
         </div>
         <div className="card card-hover">
@@ -214,7 +219,7 @@ export default function AllTransactionsPage() {
             Total spent
           </p>
           <p className="text-xl font-bold text-[var(--error)]">
-            {formatCurrency(totalSpent)}
+            {formatDisplayAmount(totalSpent)}
           </p>
         </div>
         <div className="card card-hover">
@@ -222,7 +227,7 @@ export default function AllTransactionsPage() {
             Total received
           </p>
           <p className="text-xl font-bold text-[var(--success)]">
-            {formatCurrency(totalReceived)}
+            {formatDisplayAmount(totalReceived)}
           </p>
         </div>
       </section>
@@ -345,7 +350,7 @@ export default function AllTransactionsPage() {
                           t.amount >= 0 ? "text-[var(--success)]" : "text-[var(--error)]"
                         }`}
                       >
-                        {formatCurrency(t.amount)}
+                        {formatDisplayAmount(t.amount)}
                       </td>
                     </tr>
                   ))}
@@ -365,7 +370,7 @@ export default function AllTransactionsPage() {
                   filteredTotal >= 0 ? "text-[var(--success)]" : "text-[var(--error)]"
                 }`}
               >
-                Total: {formatCurrency(filteredTotal)}
+                Total: {formatDisplayAmount(filteredTotal)}
               </span>
             </div>
           )}

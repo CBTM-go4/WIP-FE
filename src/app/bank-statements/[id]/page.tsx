@@ -17,6 +17,7 @@ import type {
   TransactionItem,
   RecurringPaymentItem,
 } from "@/lib/api";
+import { DEMO_HIDE_AMOUNTS } from "@/lib/demo";
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-ZA", {
@@ -25,6 +26,10 @@ function formatCurrency(amount: number): string {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount);
+}
+
+function formatDisplayAmount(amount: number): string {
+  return DEMO_HIDE_AMOUNTS ? "R xxx" : formatCurrency(amount);
 }
 
 /** Format month string (e.g. "2024-01" or "2024-01-15") as "January 2024". */
@@ -221,7 +226,7 @@ export default function StatementDashboardPage() {
                     : "text-[var(--success)]"
               }`}
             >
-              {summary != null ? formatCurrency(summary.net_total) : "—"}
+              {summary != null ? formatDisplayAmount(summary.net_total) : "—"}
             </p>
           </div>
           <div className="card card-hover">
@@ -229,7 +234,7 @@ export default function StatementDashboardPage() {
               Total spent
             </p>
             <p className="text-xl font-bold text-[var(--error)] tabular-nums">
-              {summary != null ? formatCurrency(summary.total_spent) : "—"}
+              {summary != null ? formatDisplayAmount(summary.total_spent) : "—"}
             </p>
           </div>
           <div className="card card-hover">
@@ -237,7 +242,7 @@ export default function StatementDashboardPage() {
               Total received
             </p>
             <p className="text-xl font-bold text-[var(--success)] tabular-nums">
-              {summary != null ? formatCurrency(summary.total_received) : "—"}
+              {summary != null ? formatDisplayAmount(summary.total_received) : "—"}
             </p>
           </div>
         </div>
@@ -279,7 +284,7 @@ export default function StatementDashboardPage() {
                         row.net >= 0 ? "text-[var(--success)]" : "text-[var(--error)]"
                       }`}
                     >
-                      {formatCurrency(row.net)}
+                      {formatDisplayAmount(row.net)}
                     </p>
                   </div>
                   <div>
@@ -287,7 +292,7 @@ export default function StatementDashboardPage() {
                       Total spent
                     </p>
                     <p className="text-lg font-bold text-[var(--error)] mt-0.5">
-                      {formatCurrency(row.spent)}
+                      {formatDisplayAmount(row.spent)}
                     </p>
                   </div>
                   <div>
@@ -295,7 +300,7 @@ export default function StatementDashboardPage() {
                       Total received
                     </p>
                     <p className="text-lg font-bold mt-0.5">
-                      {formatCurrency(row.received)}
+                      {formatDisplayAmount(row.received)}
                     </p>
                   </div>
                 </div>
@@ -324,7 +329,7 @@ export default function StatementDashboardPage() {
                       {item.category}
                     </span>
                     <span className="text-[var(--muted)]">
-                      {formatCurrency(item.total)}
+                      {formatDisplayAmount(item.total)}
                     </span>
                   </div>
                   <div className="h-2 rounded-full bg-[var(--border)] overflow-hidden">
@@ -372,7 +377,7 @@ export default function StatementDashboardPage() {
                     )}
                   </div>
                   <span className="font-medium text-[var(--text)]">
-                    {formatCurrency(r.amount)}
+                    {formatDisplayAmount(r.amount)}
                   </span>
                 </li>
               ))}
@@ -466,7 +471,7 @@ export default function StatementDashboardPage() {
                           t.amount >= 0 ? "text-[var(--success)]" : "text-[var(--error)]"
                         }`}
                       >
-                        {formatCurrency(t.amount)}
+                        {formatDisplayAmount(t.amount)}
                       </td>
                     </tr>
                   ))}
@@ -486,7 +491,7 @@ export default function StatementDashboardPage() {
                   filteredTotal >= 0 ? "text-[var(--success)]" : "text-[var(--error)]"
                 }`}
               >
-                Total: {formatCurrency(filteredTotal)}
+                Total: {formatDisplayAmount(filteredTotal)}
               </span>
             </div>
           )}
