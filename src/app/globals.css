@@ -3,14 +3,23 @@
 @tailwind utilities;
 
 :root {
-  --bg: #faf8f5;
+  --bg: #f5f3ef;
+  --bg-subtle: #ebe8e3;
   --card: #ffffff;
-  --text: #1a1a1a;
-  --muted: #6b7280;
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
-  --border: #e5e7eb;
-  --error: #dc2626;
+  --text: #1c1917;
+  --text-soft: #44403c;
+  --muted: #78716c;
+  --accent: #0d9488;
+  --accent-hover: #0f766e;
+  --accent-muted: #ccfbf1;
+  --border: #e7e5e4;
+  --error: #b91c1c;
+  --success: #15803d;
+  --radius: 0.75rem;
+  --radius-sm: 0.5rem;
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
+  --shadow-hover: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.08);
 }
 
 body {
@@ -20,18 +29,22 @@ body {
 
 @layer components {
   .btn {
-    @apply px-4 py-2 rounded-lg font-medium transition-colors;
+    @apply px-4 py-2.5 rounded-[var(--radius-sm)] font-medium transition-all duration-200;
   }
   .btn-primary {
-    @apply btn bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)];
+    @apply btn bg-[var(--accent)] text-white shadow-sm hover:bg-[var(--accent-hover)] hover:shadow-md active:scale-[0.98];
   }
   .btn-secondary {
-    @apply btn bg-white border border-[var(--border)] text-[var(--text)] hover:bg-gray-50;
+    @apply btn bg-[var(--card)] border border-[var(--border)] text-[var(--text-soft)] shadow-sm hover:bg-[var(--bg-subtle)] hover:border-[var(--muted)] active:scale-[0.98];
   }
   .input {
-    @apply w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-white focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent;
+    @apply w-full px-3.5 py-2.5 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--card)] text-[var(--text)] placeholder:text-[var(--muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)] transition-shadow;
   }
   .card {
-    @apply bg-[var(--card)] rounded-xl border border-[var(--border)] shadow-sm p-6;
+    @apply bg-[var(--card)] rounded-[var(--radius)] border border-[var(--border)] p-6 transition-shadow;
+    box-shadow: var(--shadow);
+  }
+  .card-hover {
+    @apply hover:shadow-md;
   }
 }

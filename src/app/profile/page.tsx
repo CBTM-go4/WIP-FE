@@ -123,7 +123,7 @@ export default function ProfilePage() {
               Member since {new Date(user.created_at).toLocaleDateString()}
             </p>
           )}
-          {message && <p className="text-sm text-green-600">{message}</p>}
+          {message && <p className="text-sm text-[var(--success)]">{message}</p>}
           {error && <p className="text-sm text-[var(--error)]">{error}</p>}
           <button type="submit" className="btn-primary w-full" disabled={saving}>
             {saving ? "Saving…" : "Save changes"}

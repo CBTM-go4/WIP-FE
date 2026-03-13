@@ -30,9 +30,9 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="max-w-sm mx-auto">
+    <div className="max-w-sm mx-auto pt-4">
       <div className="card">
-        <h2 className="text-xl font-semibold mb-4">Create account</h2>
+        <h2 className="text-2xl font-bold text-[var(--text)] tracking-tight mb-6">Create account</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-[var(--muted)] mb-1">
@@ -95,9 +95,9 @@ export default function RegisterPage() {
             {loading ? "Creating account…" : "Register"}
           </button>
         </form>
-        <p className="mt-4 text-sm text-[var(--muted)] text-center">
+        <p className="mt-5 text-sm text-[var(--muted)] text-center">
           Already have an account?{" "}
-          <Link href="/login" className="text-[var(--accent)] hover:underline">
+          <Link href="/login" className="font-medium text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors">
             Log in
           </Link>
         </p>

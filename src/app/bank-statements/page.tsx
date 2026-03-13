@@ -109,15 +109,15 @@ export default function BankStatementsPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-        <h2 className="text-xl font-semibold">Bank statements</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight">Bank statements</h1>
         <Link href="/bank-statements/transactions" className="btn-secondary">
           View all transactions
         </Link>
       </div>
 
-      <div className="card mb-6">
-        <h3 className="font-medium mb-3">Upload PDF</h3>
+      <div className="card card-hover mb-6">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-3">Upload PDF</h3>
         <form onSubmit={handleUpload} className="space-y-3">
           <input
             ref={fileInputRef}
@@ -129,7 +129,7 @@ export default function BankStatementsPage() {
             <p className="text-sm text-[var(--error)]">{uploadError}</p>
           )}
           {uploadSuccess && (
-            <p className="text-sm text-green-600">{uploadSuccess}</p>
+            <p className="text-sm text-[var(--success)]">{uploadSuccess}</p>
           )}
           <button
             type="submit"
@@ -144,7 +144,7 @@ export default function BankStatementsPage() {
         </p>
       </div>
 
-      <h3 className="font-medium mb-2">Your uploads</h3>
+      <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-3">Your uploads</h2>
       <div className="card p-0 overflow-hidden">
         <ul className="divide-y divide-[var(--border)]">
           {statements.map((st) => (

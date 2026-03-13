@@ -176,7 +176,7 @@ export default function AllTransactionsPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-[var(--text)]">
+        <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight">
           All statement transactions
         </h1>
         <Link
@@ -189,39 +189,39 @@ export default function AllTransactionsPage() {
 
       {/* Summary cards */}
       <section className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <div className="card">
-          <p className="text-sm font-medium text-[var(--muted)] mb-1">
+        <div className="card card-hover">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-1">
             Transactions
           </p>
           <p className="text-xl font-bold text-[var(--text)]">
             {filteredTransactions.length}
           </p>
         </div>
-        <div className="card">
-          <p className="text-sm font-medium text-[var(--muted)] mb-1">
+        <div className="card card-hover">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-1">
             Net total
           </p>
           <p
             className={`text-xl font-bold ${
-              filteredTotal >= 0 ? "text-green-600" : "text-[var(--error)]"
+              filteredTotal >= 0 ? "text-[var(--success)]" : "text-[var(--error)]"
             }`}
           >
             {formatCurrency(filteredTotal)}
           </p>
         </div>
-        <div className="card">
-          <p className="text-sm font-medium text-[var(--muted)] mb-1">
+        <div className="card card-hover">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-1">
             Total spent
           </p>
           <p className="text-xl font-bold text-[var(--error)]">
             {formatCurrency(totalSpent)}
           </p>
         </div>
-        <div className="card">
-          <p className="text-sm font-medium text-[var(--muted)] mb-1">
+        <div className="card card-hover">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-1">
             Total received
           </p>
-          <p className="text-xl font-bold text-green-600">
+          <p className="text-xl font-bold text-[var(--success)]">
             {formatCurrency(totalReceived)}
           </p>
         </div>
@@ -342,7 +342,7 @@ export default function AllTransactionsPage() {
                       </td>
                       <td
                         className={`py-3 px-4 text-right font-medium whitespace-nowrap ${
-                          t.amount >= 0 ? "text-green-600" : "text-[var(--error)]"
+                          t.amount >= 0 ? "text-[var(--success)]" : "text-[var(--error)]"
                         }`}
                       >
                         {formatCurrency(t.amount)}
@@ -362,7 +362,7 @@ export default function AllTransactionsPage() {
               </span>
               <span
                 className={`font-semibold ${
-                  filteredTotal >= 0 ? "text-green-600" : "text-[var(--error)]"
+                  filteredTotal >= 0 ? "text-[var(--success)]" : "text-[var(--error)]"
                 }`}
               >
                 Total: {formatCurrency(filteredTotal)}

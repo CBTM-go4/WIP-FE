@@ -183,7 +183,7 @@ export default function StatementDashboardPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-[var(--text)]">
+        <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight">
           Statement #{statementId}
         </h1>
         <Link
@@ -196,47 +196,47 @@ export default function StatementDashboardPage() {
 
       {/* Summary cards */}
       <section>
-        <h2 className="text-lg font-semibold text-[var(--text)] mb-4">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-4">
           Summary
         </h2>
         <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-          <div className="card">
-            <p className="text-sm font-medium text-[var(--muted)] mb-1">
+          <div className="card card-hover">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-1">
               Transactions
             </p>
-            <p className="text-xl font-bold text-[var(--text)]">
+            <p className="text-xl font-bold text-[var(--text)] tabular-nums">
               {summary?.transaction_count ?? 0}
             </p>
           </div>
-          <div className="card">
-            <p className="text-sm font-medium text-[var(--muted)] mb-1">
+          <div className="card card-hover">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-1">
               Net total
             </p>
             <p
-              className={`text-xl font-bold ${
+              className={`text-xl font-bold tabular-nums ${
                 summary == null
                   ? "text-[var(--text)]"
                   : summary.net_total < 0
                     ? "text-[var(--error)]"
-                    : "text-green-600"
+                    : "text-[var(--success)]"
               }`}
             >
               {summary != null ? formatCurrency(summary.net_total) : "—"}
             </p>
           </div>
-          <div className="card">
-            <p className="text-sm font-medium text-[var(--muted)] mb-1">
+          <div className="card card-hover">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-1">
               Total spent
             </p>
-            <p className="text-xl font-bold text-[var(--error)]">
+            <p className="text-xl font-bold text-[var(--error)] tabular-nums">
               {summary != null ? formatCurrency(summary.total_spent) : "—"}
             </p>
           </div>
-          <div className="card">
-            <p className="text-sm font-medium text-[var(--muted)] mb-1">
+          <div className="card card-hover">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-1">
               Total received
             </p>
-            <p className="text-xl font-bold">
+            <p className="text-xl font-bold text-[var(--success)] tabular-nums">
               {summary != null ? formatCurrency(summary.total_received) : "—"}
             </p>
           </div>
@@ -245,7 +245,7 @@ export default function StatementDashboardPage() {
 
       {/* Monthly breakdown: transactions, net total, total spent, total received per month */}
       <section>
-        <h2 className="text-lg font-semibold text-[var(--text)] mb-4">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-4">
           By month
         </h2>
         {monthlyBreakdown.length === 0 ? (
@@ -257,7 +257,7 @@ export default function StatementDashboardPage() {
         ) : (
           <div className="space-y-4">
             {monthlyBreakdown.map((row) => (
-              <div key={row.month} className="card">
+              <div key={row.month} className="card card-hover">
                 <h3 className="font-semibold text-[var(--text)] mb-4">
                   {formatMonthLabel(row.month)}
                 </h3>
@@ -276,7 +276,7 @@ export default function StatementDashboardPage() {
                     </p>
                     <p
                       className={`text-lg font-bold mt-0.5 ${
-                        row.net >= 0 ? "text-green-600" : "text-[var(--error)]"
+                        row.net >= 0 ? "text-[var(--success)]" : "text-[var(--error)]"
                       }`}
                     >
                       {formatCurrency(row.net)}
@@ -307,7 +307,7 @@ export default function StatementDashboardPage() {
 
       {/* Spending by category */}
       <section>
-        <h2 className="text-lg font-semibold text-[var(--text)] mb-4">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-4">
           Spending by category
         </h2>
         <div className="card">
@@ -344,7 +344,7 @@ export default function StatementDashboardPage() {
 
       {/* Recurring payments */}
       <section>
-        <h2 className="text-lg font-semibold text-[var(--text)] mb-4">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-4">
           Recurring payments
         </h2>
         <div className="card p-0 overflow-hidden">
@@ -383,7 +383,7 @@ export default function StatementDashboardPage() {
 
       {/* Searchable transactions table */}
       <section>
-        <h2 className="text-lg font-semibold text-[var(--text)] mb-4">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-4">
           Transactions
         </h2>
         <div className="card p-0 overflow-hidden">
@@ -463,7 +463,7 @@ export default function StatementDashboardPage() {
                       </td>
                       <td
                         className={`py-3 px-4 text-right font-medium whitespace-nowrap ${
-                          t.amount >= 0 ? "text-green-600" : "text-[var(--error)]"
+                          t.amount >= 0 ? "text-[var(--success)]" : "text-[var(--error)]"
                         }`}
                       >
                         {formatCurrency(t.amount)}
@@ -483,7 +483,7 @@ export default function StatementDashboardPage() {
               </span>
               <span
                 className={`font-semibold ${
-                  filteredTotal >= 0 ? "text-green-600" : "text-[var(--error)]"
+                  filteredTotal >= 0 ? "text-[var(--success)]" : "text-[var(--error)]"
                 }`}
               >
                 Total: {formatCurrency(filteredTotal)}

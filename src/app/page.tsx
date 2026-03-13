@@ -41,49 +41,51 @@ export default function Home() {
   }, [router]);
 
   return (
-    <div className="py-8">
-      <h1 className="text-3xl font-bold text-[var(--text)] mb-2">Dashboard</h1>
-      <p className="text-[var(--muted)] mb-8 max-w-md">
+    <div className="py-10">
+      <h1 className="text-3xl font-bold text-[var(--text)] tracking-tight mb-2">
+        Dashboard
+      </h1>
+      <p className="text-[var(--muted)] mb-10 max-w-md">
         Overview of your account and bank statements.
       </p>
 
       {loading ? (
-        <div className="card max-w-2xl text-center py-8 text-[var(--muted)]">
+        <div className="card max-w-2xl text-center py-12 text-[var(--muted)]">
           Loading…
         </div>
       ) : (
         <>
-          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-8">
-            <div className="card">
-              <p className="text-sm font-medium text-[var(--muted)] mb-1">
+          <section className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 mb-10">
+            <div className="card card-hover">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-2">
                 Bank statements
               </p>
-              <p className="text-2xl font-bold text-[var(--text)]">
+              <p className="text-2xl font-bold text-[var(--text)] tabular-nums">
                 {stats?.count ?? 0}
               </p>
               <Link
                 href="/bank-statements"
-                className="text-sm text-[var(--accent)] hover:underline mt-2 inline-block"
+                className="text-sm font-medium text-[var(--accent)] hover:text-[var(--accent-hover)] mt-3 inline-flex items-center gap-1 transition-colors"
               >
                 View & upload →
               </Link>
             </div>
-            <div className="card">
-              <p className="text-sm font-medium text-[var(--muted)] mb-1">
+            <div className="card card-hover">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-2">
                 Total size
               </p>
-              <p className="text-2xl font-bold text-[var(--text)]">
+              <p className="text-2xl font-bold text-[var(--text)] tabular-nums">
                 {stats ? formatBytes(stats.totalSizeBytes) : "—"}
               </p>
               <p className="text-xs text-[var(--muted)] mt-1">
                 PDFs uploaded
               </p>
             </div>
-            <div className="card sm:col-span-2 lg:col-span-1">
-              <p className="text-sm font-medium text-[var(--muted)] mb-1">
+            <div className="card card-hover sm:col-span-2 lg:col-span-1">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-2">
                 Latest upload
               </p>
-              <p className="text-lg font-semibold text-[var(--text)]">
+              <p className="text-lg font-semibold text-[var(--text)] tabular-nums">
                 {stats?.latestUploadAt
                   ? new Date(stats.latestUploadAt).toLocaleDateString()
                   : "—"}
@@ -91,7 +93,7 @@ export default function Home() {
             </div>
           </section>
 
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex gap-3 flex-wrap">
             <Link href="/bank-statements" className="btn-primary">
               Bank statements
             </Link>

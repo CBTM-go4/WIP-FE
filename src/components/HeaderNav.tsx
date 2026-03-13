@@ -29,14 +29,17 @@ export default function HeaderNav() {
     router.refresh();
   }
 
+  const navLink =
+    "text-sm font-medium text-[var(--text-soft)] hover:text-[var(--accent)] transition-colors py-2 px-3 rounded-[var(--radius-sm)] hover:bg-[var(--accent-muted)]/50";
+
   if (!mounted) {
     return (
-      <header className="border-b border-[var(--border)] bg-[var(--card)]">
-        <nav className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="text-lg font-semibold text-[var(--text)]">
+      <header className="sticky top-0 z-20 border-b border-[var(--border)] bg-[var(--card)]/95 backdrop-blur-sm" style={{ boxShadow: "var(--shadow)" }}>
+        <nav className="max-w-4xl mx-auto px-4 py-3.5 flex items-center justify-between">
+          <Link href="/" className="text-xl font-semibold text-[var(--text)] tracking-tight">
             Freedom 35
           </Link>
-          <div className="flex gap-4">
+          <div className="flex gap-1">
             <span className="text-[var(--muted)]">…</span>
           </div>
         </nav>
@@ -45,52 +48,37 @@ export default function HeaderNav() {
   }
 
   return (
-    <header className="border-b border-[var(--border)] bg-[var(--card)]">
-      <nav className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-        <Link href="/" className="text-lg font-semibold text-[var(--text)]">
+    <header className="sticky top-0 z-20 border-b border-[var(--border)] bg-[var(--card)]/95 backdrop-blur-sm" style={{ boxShadow: "var(--shadow)" }}>
+      <nav className="max-w-4xl mx-auto px-4 py-3.5 flex items-center justify-between">
+        <Link href="/" className="text-xl font-semibold text-[var(--text)] tracking-tight hover:text-[var(--accent)] transition-colors">
           Freedom 35
         </Link>
-        <div className="flex gap-4">
+        <div className="flex items-center gap-1">
           {isLoggedIn ? (
             <>
-              <Link
-                href="/profile"
-                className="text-[var(--muted)] hover:text-[var(--accent)] transition-colors"
-              >
+              <Link href="/profile" className={navLink}>
                 Profile
               </Link>
-              <Link
-                href="/users"
-                className="text-[var(--muted)] hover:text-[var(--accent)] transition-colors"
-              >
+              <Link href="/users" className={navLink}>
                 Users
               </Link>
-              <Link
-                href="/bank-statements"
-                className="text-[var(--muted)] hover:text-[var(--accent)] transition-colors"
-              >
+              <Link href="/bank-statements" className={navLink}>
                 Bank statements
               </Link>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="text-[var(--muted)] hover:text-[var(--accent)] transition-colors bg-transparent border-none cursor-pointer font-inherit"
+                className={`${navLink} cursor-pointer bg-transparent border-none font-inherit`}
               >
                 Log out
               </button>
             </>
           ) : (
             <>
-              <Link
-                href="/login"
-                className="text-[var(--muted)] hover:text-[var(--accent)] transition-colors"
-              >
+              <Link href="/login" className={navLink}>
                 Log in
               </Link>
-              <Link
-                href="/register"
-                className="text-[var(--muted)] hover:text-[var(--accent)] transition-colors"
-              >
+              <Link href="/register" className={navLink}>
                 Register
               </Link>
             </>

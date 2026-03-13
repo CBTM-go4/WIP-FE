@@ -32,9 +32,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="max-w-sm mx-auto">
+    <div className="max-w-sm mx-auto pt-4">
       <div className="card">
-        <h2 className="text-xl font-semibold mb-4">Log in</h2>
+        <h2 className="text-2xl font-bold text-[var(--text)] tracking-tight mb-6">Log in</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-[var(--muted)] mb-1">
@@ -82,9 +82,9 @@ export default function LoginPage() {
             {loading ? "Signing in…" : "Sign in"}
           </button>
         </form>
-        <p className="mt-4 text-sm text-[var(--muted)] text-center">
+        <p className="mt-5 text-sm text-[var(--muted)] text-center">
           No account?{" "}
-          <Link href="/register" className="text-[var(--accent)] hover:underline">
+          <Link href="/register" className="font-medium text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors">
             Register
           </Link>
         </p>
