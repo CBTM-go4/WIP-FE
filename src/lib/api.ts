@@ -175,7 +175,7 @@ export type SpendingByMonthItem = {
 
 export type SpendingByCategoryItem = {
   category: string;
-  amount: number;
+  total: number;
 };
 
 export type TransactionItem = {

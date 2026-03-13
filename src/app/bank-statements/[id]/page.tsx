@@ -51,6 +51,8 @@ export default function StatementDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const [sortKey, setSortKey] = useState<"date" | "description" | "category" | "amount">("date");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   const filteredTransactions = useMemo(() => {
     if (!search.trim()) return transactions;
@@ -67,6 +69,32 @@ export default function StatementDashboardPage() {
     () => filteredTransactions.reduce((sum, t) => sum + t.amount, 0),
     [filteredTransactions]
   );
+
+  const sortedTransactions = useMemo(() => {
+    const list = [...filteredTransactions];
+    list.sort((a, b) => {
+      let cmp = 0;
+      if (sortKey === "date") {
+        cmp = new Date(a.date).getTime() - new Date(b.date).getTime();
+      } else if (sortKey === "description") {
+        cmp = (a.description ?? "").localeCompare(b.description ?? "");
+      } else if (sortKey === "category") {
+        cmp = (a.category ?? "").localeCompare(b.category ?? "");
+      } else if (sortKey === "amount") {
+        cmp = a.amount - b.amount;
+      }
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+    return list;
+  }, [filteredTransactions, sortKey, sortDir]);
+
+  function handleSort(key: "date" | "description" | "category" | "amount") {
+    if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else {
+      setSortKey(key);
+      setSortDir(key === "date" ? "desc" : "asc");
+    }
+  }
 
   /** Per-month stats from transactions: count, net total, total spent, total received. */
   const monthlyBreakdown = useMemo(() => {
@@ -130,7 +158,7 @@ export default function StatementDashboardPage() {
 
   const maxByCategory = useMemo(() => {
     if (byCategory.length === 0) return 1;
-    return Math.max(...byCategory.map((c) => c.amount), 1);
+    return Math.max(...byCategory.map((c) => c.total), 1);
   }, [byCategory]);
 
   if (loading) {
@@ -184,7 +212,15 @@ export default function StatementDashboardPage() {
             <p className="text-sm font-medium text-[var(--muted)] mb-1">
               Net total
             </p>
-            <p className="text-xl font-bold text-[var(--text)]">
+            <p
+              className={`text-xl font-bold ${
+                summary == null
+                  ? "text-[var(--text)]"
+                  : summary.net_total < 0
+                    ? "text-[var(--error)]"
+                    : "text-green-600"
+              }`}
+            >
               {summary != null ? formatCurrency(summary.net_total) : "—"}
             </p>
           </div>
@@ -200,7 +236,7 @@ export default function StatementDashboardPage() {
             <p className="text-sm font-medium text-[var(--muted)] mb-1">
               Total received
             </p>
-            <p className="text-xl font-bold text-green-600">
+            <p className="text-xl font-bold">
               {summary != null ? formatCurrency(summary.total_received) : "—"}
             </p>
           </div>
@@ -258,7 +294,7 @@ export default function StatementDashboardPage() {
                     <p className="text-xs font-medium text-[var(--muted)] uppercase tracking-wide">
                       Total received
                     </p>
-                    <p className="text-lg font-bold text-green-600 mt-0.5">
+                    <p className="text-lg font-bold mt-0.5">
                       {formatCurrency(row.received)}
                     </p>
                   </div>
@@ -288,14 +324,14 @@ export default function StatementDashboardPage() {
                       {item.category}
                     </span>
                     <span className="text-[var(--muted)]">
-                      {formatCurrency(item.amount)}
+                      {formatCurrency(item.total)}
                     </span>
                   </div>
                   <div className="h-2 rounded-full bg-[var(--border)] overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-[var(--accent)]"
+                      className="h-full rounded-full bg-[var(--accent)] min-w-[2px]"
                       style={{
-                        width: `${(item.amount / maxByCategory) * 100}%`,
+                        width: `${(item.total / maxByCategory) * 100}%`,
                       }}
                     />
                   </div>
@@ -373,21 +409,45 @@ export default function StatementDashboardPage() {
                 <thead className="sticky top-0 z-10 bg-[var(--card)] shadow-sm">
                   <tr className="border-b border-[var(--border)]">
                     <th className="text-left py-3 px-4 font-medium text-[var(--muted)]">
-                      Date
+                      <button
+                        type="button"
+                        onClick={() => handleSort("date")}
+                        className="flex items-center gap-1 hover:text-[var(--accent)] cursor-pointer"
+                      >
+                        Date {sortKey === "date" && (sortDir === "asc" ? "↑" : "↓")}
+                      </button>
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-[var(--muted)]">
-                      Description
+                      <button
+                        type="button"
+                        onClick={() => handleSort("description")}
+                        className="flex items-center gap-1 hover:text-[var(--accent)] cursor-pointer"
+                      >
+                        Description {sortKey === "description" && (sortDir === "asc" ? "↑" : "↓")}
+                      </button>
                     </th>
                     <th className="text-left py-3 px-4 font-medium text-[var(--muted)] hidden sm:table-cell">
-                      Category
+                      <button
+                        type="button"
+                        onClick={() => handleSort("category")}
+                        className="flex items-center gap-1 hover:text-[var(--accent)] cursor-pointer"
+                      >
+                        Category {sortKey === "category" && (sortDir === "asc" ? "↑" : "↓")}
+                      </button>
                     </th>
                     <th className="text-right py-3 px-4 font-medium text-[var(--muted)]">
-                      Amount
+                      <button
+                        type="button"
+                        onClick={() => handleSort("amount")}
+                        className="flex items-center gap-1 hover:text-[var(--accent)] cursor-pointer inline-flex ml-auto"
+                      >
+                        Amount {sortKey === "amount" && (sortDir === "asc" ? "↑" : "↓")}
+                      </button>
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredTransactions.map((t) => (
+                  {sortedTransactions.map((t) => (
                     <tr
                       key={t.id}
                       className="border-b border-[var(--border)] last:border-0 hover:bg-gray-50/50"
