@@ -11,7 +11,7 @@ import {
 } from "@/lib/api";
 import type { BankStatement } from "@/lib/api";
 import { formatReportDate } from "@/lib/format";
-import { Download, Trash2 } from "lucide-react";
+import { ChevronRight, Download, Trash2 } from "lucide-react";
 
 function formatBytes(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
@@ -170,7 +170,7 @@ export default function BankStatementsPage() {
                   router.push(`/bank-statements/${st.id}`);
                 }
               }}
-              className="px-6 py-4 flex items-center justify-between gap-4 hover:bg-gray-50/80 transition-colors cursor-pointer"
+              className="group px-6 py-4 flex items-center justify-between gap-4 hover:bg-gray-50/80 transition-colors cursor-pointer"
             >
               <div className="min-w-0 flex-1">
                 <p className="font-medium truncate">{st.original_filename}</p>
@@ -180,9 +180,11 @@ export default function BankStatementsPage() {
                 </p>
               </div>
               <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
-                <span className="text-sm text-[var(--accent)] font-medium">
-                  Dashboard
-                </span>
+                <ChevronRight
+                  size={20}
+                  className="text-[var(--muted)] group-hover:text-[var(--accent)] shrink-0"
+                  aria-hidden
+                />
                 <button
                   type="button"
                   onClick={() => handleDownload(st)}
