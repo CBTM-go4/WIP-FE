@@ -103,6 +103,7 @@ export default function AllTransactionsPage() {
     return list.filter(
       (t) =>
         t.description?.toLowerCase().includes(q) ||
+        (t.normalized_description && t.normalized_description.toLowerCase().includes(q)) ||
         (t.category && t.category.toLowerCase().includes(q)) ||
         String(t.amount).includes(q) ||
         t.statementLabel.toLowerCase().includes(q)
@@ -118,7 +119,9 @@ export default function AllTransactionsPage() {
       } else if (sortKey === "statement") {
         cmp = (a.statementLabel ?? "").localeCompare(b.statementLabel ?? "");
       } else if (sortKey === "description") {
-        cmp = (a.description ?? "").localeCompare(b.description ?? "");
+        cmp = (a.normalized_description ?? a.description ?? "").localeCompare(
+          b.normalized_description ?? b.description ?? ""
+        );
       } else if (sortKey === "category") {
         cmp = (a.category ?? "").localeCompare(b.category ?? "");
       } else if (sortKey === "amount") {
@@ -339,8 +342,8 @@ export default function AllTransactionsPage() {
                           {t.statementLabel}
                         </Link>
                       </td>
-                      <td className="py-3 px-4 text-[var(--text)]">
-                        {t.description}
+                      <td className="py-3 px-4 text-[var(--text)]" title={t.description ?? undefined}>
+                        {t.normalized_description ?? t.description}
                       </td>
                       <td className="py-3 px-4 text-[var(--muted)] hidden sm:table-cell">
                         {t.category

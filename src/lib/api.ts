@@ -206,6 +206,7 @@ export type TransactionItem = {
   id: string | number;
   date: string;
   description: string;
+  normalized_description?: string | null;
   amount: number;
   balance?: number | null;
   category: string | null;
