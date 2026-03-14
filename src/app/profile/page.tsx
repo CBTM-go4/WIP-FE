@@ -83,13 +83,13 @@ export default function ProfilePage() {
       <div className="card">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold">Profile</h2>
-          <button
+          {/* <button
             type="button"
             onClick={handleLogout}
             className="text-sm text-[var(--muted)] hover:text-[var(--error)]"
           >
             Log out
-          </button>
+          </button> */}
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
