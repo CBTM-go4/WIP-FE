@@ -5,7 +5,7 @@ export function formatReportDate(
   const d = typeof value === "object" && value instanceof Date ? value : new Date(value);
   if (Number.isNaN(d.getTime())) return String(value);
   return new Intl.DateTimeFormat("en-GB", {
-    day: "numeric",
+    day: "2-digit",
     month: "short",
     year: "2-digit",
   }).format(d);
