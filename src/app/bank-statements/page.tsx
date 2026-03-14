@@ -125,7 +125,7 @@ export default function BankStatementsPage() {
     <div className="max-w-2xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight">Bank statements</h1>
-        <Link href="/bank-statements/transactions" className="btn-secondary">
+        <Link href="/" className="btn-secondary">
           View all transactions
         </Link>
       </div>
