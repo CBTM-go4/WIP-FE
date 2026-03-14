@@ -10,6 +10,7 @@ import {
   deleteBankStatement,
 } from "@/lib/api";
 import type { BankStatement } from "@/lib/api";
+import { Download, Trash2 } from "lucide-react";
 
 function formatBytes(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
@@ -44,20 +45,18 @@ export default function BankStatementsPage() {
     })();
   }, [router]);
 
-  async function handleUpload(e: React.FormEvent) {
-    e.preventDefault();
-    const input = fileInputRef.current;
-    if (!input?.files?.length) {
-      setUploadError("Choose a PDF file.");
-      return;
-    }
+  async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const input = e.target;
+    if (!input.files?.length) return;
     const file = input.files[0];
     if (file.type !== "application/pdf") {
       setUploadError("Only PDF files are allowed.");
+      input.value = "";
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
       setUploadError("File must be under 10 MB.");
+      input.value = "";
       return;
     }
     setUploadError("");
@@ -65,10 +64,10 @@ export default function BankStatementsPage() {
     setUploading(true);
     const res = await uploadBankStatement(file);
     setUploading(false);
+    input.value = "";
     if (res.ok && "data" in res) {
       setUploadSuccess(`Uploaded "${res.data.original_filename}".`);
       setStatements((prev) => [res.data, ...prev]);
-      input.value = "";
     } else {
       setUploadError(res.message || "Upload failed");
     }
@@ -129,15 +128,16 @@ export default function BankStatementsPage() {
           View all transactions
         </Link>
       </div>
-
-      <div className="card card-hover mb-6">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-3">Upload PDF</h3>
-        <form onSubmit={handleUpload} className="space-y-3">
+      <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-3">Upload PDF</h2>
+      <div className="card card-hover mb-6">      
+        <div className="space-y-3">
           <input
             ref={fileInputRef}
             type="file"
             accept="application/pdf"
-            className="block w-full text-sm text-[var(--muted)] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[var(--accent)] file:text-white file:font-medium file:cursor-pointer hover:file:bg-[var(--accent-hover)]"
+            onChange={handleFileSelect}
+            disabled={uploading}
+            className="block w-full text-sm text-[var(--muted)] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[var(--accent)] file:text-white file:font-medium file:cursor-pointer hover:file:bg-[var(--accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
           />
           {uploadError && (
             <p className="text-sm text-[var(--error)]">{uploadError}</p>
@@ -145,16 +145,12 @@ export default function BankStatementsPage() {
           {uploadSuccess && (
             <p className="text-sm text-[var(--success)]">{uploadSuccess}</p>
           )}
-          <button
-            type="submit"
-            className="btn-primary"
-            disabled={uploading}
-          >
-            {uploading ? "Uploading…" : "Upload"}
-          </button>
-        </form>
+          {uploading && (
+            <p className="text-sm text-[var(--muted)]">Uploading…</p>
+          )}
+        </div>
         <p className="text-xs text-[var(--muted)] mt-2">
-          PDF only, max 10 MB.
+          PDF only, max 2 MB.
         </p>
       </div>
 
@@ -173,7 +169,7 @@ export default function BankStatementsPage() {
                   {new Date(st.created_at).toLocaleDateString()}
                 </p>
               </div>
-              <div className="flex gap-2 shrink-0 flex-wrap">
+              <div className="flex items-center gap-2 shrink-0">
                 <Link
                   href={`/bank-statements/${st.id}`}
                   className="btn-primary"
@@ -183,17 +179,19 @@ export default function BankStatementsPage() {
                 <button
                   type="button"
                   onClick={() => handleDownload(st)}
-                  className="btn-secondary"
+                  className="p-2 rounded-[var(--radius-sm)] text-[var(--muted)] hover:text-[var(--accent)] hover:bg-[var(--accent-muted)]/50 transition-colors"
+                  aria-label="Download"
                 >
-                  Download
+                  <Download size={20} />
                 </button>
                 <button
                   type="button"
                   onClick={() => handleDelete(st)}
                   disabled={deletingId === st.id}
-                  className="btn-secondary text-[var(--error)] hover:bg-red-50 hover:border-red-200"
+                  className="p-2 rounded-[var(--radius-sm)] text-[var(--muted)] hover:text-[var(--error)] hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label={deletingId === st.id ? "Deleting…" : "Delete"}
                 >
-                  {deletingId === st.id ? "Deleting…" : "Delete"}
+                  <Trash2 size={20} />
                 </button>
               </div>
             </li>

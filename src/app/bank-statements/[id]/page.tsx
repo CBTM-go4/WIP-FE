@@ -32,6 +32,15 @@ function formatDisplayAmount(amount: number): string {
   return DEMO_HIDE_AMOUNTS ? "R xxx" : formatCurrency(amount);
 }
 
+/** First letter caps, rest lowercase (title case). */
+function formatCategoryName(str: string): string {
+  if (!str) return str;
+  return str
+    .split(/\s+/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+}
+
 /** Format month string (e.g. "2024-01" or "2024-01-15") as "January 2024". */
 function formatMonthLabel(monthStr: string): string {
   if (!monthStr) return monthStr;
@@ -161,9 +170,14 @@ export default function StatementDashboardPage() {
     })();
   }, [statementId, router]);
 
-  const maxByCategory = useMemo(() => {
+  const maxSpendingByCategory = useMemo(() => {
     if (byCategory.length === 0) return 1;
-    return Math.max(...byCategory.map((c) => c.total), 1);
+    return Math.max(...byCategory.map((c) => c.spending), 1);
+  }, [byCategory]);
+
+  const maxIncomeByCategory = useMemo(() => {
+    if (byCategory.length === 0) return 1;
+    return Math.max(...byCategory.map((c) => c.income), 1);
   }, [byCategory]);
 
   if (loading) {
@@ -310,40 +324,101 @@ export default function StatementDashboardPage() {
         )}
       </section>
 
-      {/* Spending by category */}
-      <section>
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-4">
-          Spending by category
-        </h2>
-        <div className="card">
-          {byCategory.length === 0 ? (
-            <p className="text-sm text-[var(--muted)] py-4 text-center">
-              No category data
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {byCategory.map((item) => (
-                <div key={item.category} className="space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span className="font-medium text-[var(--text)]">
-                      {item.category}
-                    </span>
-                    <span className="text-[var(--muted)]">
-                      {formatDisplayAmount(item.total)}
-                    </span>
-                  </div>
-                  <div className="h-2 rounded-full bg-[var(--border)] overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-[var(--accent)] min-w-[2px]"
-                      style={{
-                        width: `${(item.total / maxByCategory) * 100}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+      {/* Spending by category & Income by category */}
+      <section className="grid gap-6 sm:grid-cols-2">
+        <div>
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-4">
+            Spending by category
+          </h2>
+          <div className="card">
+            {byCategory.length === 0 ? (
+              <p className="text-sm text-[var(--muted)] py-4 text-center">
+                No category data
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {byCategory
+                  .filter((item) => item.spending > 0)
+                  .map((item) => (
+                    <div key={item.category} className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span className="font-medium text-[var(--text)]">
+                          {formatCategoryName(item.category)}
+                        </span>
+                        <span className="text-[var(--muted)]">
+                          {formatDisplayAmount(item.spending)}
+                          {item.frequency > 0 && (
+                            <span className="ml-1">
+                              · {item.frequency} txns
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                      <div className="h-2 rounded-full bg-[var(--border)] overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-[var(--success)] min-w-[2px]"
+                          style={{
+                            width: `${(item.spending / maxSpendingByCategory) * 100}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                {byCategory.filter((item) => item.spending > 0).length === 0 && (
+                  <p className="text-sm text-[var(--muted)] py-2 text-center">
+                    No spending by category
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+        <div>
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-4">
+            Income by category
+          </h2>
+          <div className="card">
+            {byCategory.length === 0 ? (
+              <p className="text-sm text-[var(--muted)] py-4 text-center">
+                No category data
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {byCategory
+                  .filter((item) => item.income > 0)
+                  .map((item) => (
+                    <div key={item.category} className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span className="font-medium text-[var(--text)]">
+                          {formatCategoryName(item.category)}
+                        </span>
+                        <span className="text-[var(--muted)]">
+                          {formatDisplayAmount(item.income)}
+                          {item.frequency > 0 && (
+                            <span className="ml-1">
+                              · {item.frequency} txns
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                      <div className="h-2 rounded-full bg-[var(--border)] overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-[var(--success)] min-w-[2px]"
+                          style={{
+                            width: `${(item.income / maxIncomeByCategory) * 100}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                {byCategory.filter((item) => item.income > 0).length === 0 && (
+                  <p className="text-sm text-[var(--muted)] py-2 text-center">
+                    No income by category
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </section>
 
@@ -361,24 +436,30 @@ export default function StatementDashboardPage() {
             <ul className="divide-y divide-[var(--border)]">
               {recurring.map((r, i) => (
                 <li
-                  key={r.id ?? i}
-                  className="px-4 py-3 sm:px-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1"
+                  key={`${r.merchant}-${i}`}
+                  className="px-4 py-3 sm:px-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
                 >
-                  <div>
-                    <p className="font-medium text-[var(--text)]">
-                      {r.name ?? r.description ?? "Payment"}
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-[var(--text)] truncate">
+                      {r.merchant}
                     </p>
-                    {r.frequency && (
-                      <p className="text-xs text-[var(--muted)]">
-                        {r.frequency}
-                        {r.next_date &&
-                          ` · Next: ${new Date(r.next_date).toLocaleDateString()}`}
-                      </p>
-                    )}
+                    <p className="text-xs text-[var(--muted)] mt-0.5">
+                      {r.frequency}
+                      {r.transaction_count > 0 &&
+                        ` · ${r.transaction_count} transaction${r.transaction_count !== 1 ? "s" : ""}`}
+                      {" · "}
+                      First: {new Date(r.first_seen).toLocaleDateString()} · Last:{" "}
+                      {new Date(r.last_seen).toLocaleDateString()}
+                    </p>
                   </div>
-                  <span className="font-medium text-[var(--text)]">
-                    {formatDisplayAmount(r.amount)}
-                  </span>
+                  <div className="text-right shrink-0">
+                    <p className="font-medium text-[var(--text)]">
+                      Avg {formatDisplayAmount(r.average_amount)}
+                    </p>
+                    <p className="text-xs text-[var(--muted)]">
+                      Last {formatDisplayAmount(r.last_amount)}
+                    </p>
+                  </div>
                 </li>
               ))}
             </ul>

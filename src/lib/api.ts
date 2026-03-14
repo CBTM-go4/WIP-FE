@@ -194,7 +194,12 @@ export type SpendingByMonthItem = {
 
 export type SpendingByCategoryItem = {
   category: string;
-  total: number;
+  frequency: number;
+  income: number;
+  spending: number;
+  net: number;
+  incomePercent: number;
+  spendingPercent: number;
 };
 
 export type TransactionItem = {
@@ -206,12 +211,13 @@ export type TransactionItem = {
 };
 
 export type RecurringPaymentItem = {
-  id?: string | number;
-  name?: string;
-  description?: string;
-  amount: number;
-  frequency?: string;
-  next_date?: string;
+  merchant: string;
+  transaction_count: number;
+  average_amount: number;
+  last_amount: number;
+  first_seen: string;
+  last_seen: string;
+  frequency: string;
 };
 
 export async function getStatementSummary(id: number) {
