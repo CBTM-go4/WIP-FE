@@ -37,9 +37,14 @@ export default function LoginPage() {
     const summaries = await Promise.all(
       statementsRes.data.map((st) => getStatementSummary(st.id))
     );
-    const hasTransactions = summaries.some(
-      (s) => s.ok && "data" in s && s.data && (s.data as { transaction_count?: number }).transaction_count > 0
-    );
+    const hasTransactions = summaries.some((s) => {
+      if (!s.ok || !("data" in s) || !s.data) {
+        return false;
+      }
+
+      const data = s.data as { transaction_count?: number };
+      return typeof data.transaction_count === "number" && data.transaction_count > 0;
+    });
     router.push(hasTransactions ? "/bank-statements/transactions" : "/bank-statements");
     router.refresh();
     setLoading(false);
