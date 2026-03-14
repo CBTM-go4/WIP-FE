@@ -20,16 +20,26 @@ export async function api<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
+
   const token = getToken();
-  const headers: HeadersInit = {
-    "Content-Type": "application/json",
-    ...options.headers,
-  };
+  const headers: HeadersInit = { ...options.headers };
+
   if (token) {
     (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
   }
-  const res = await fetch(`${API_URL}${path}`, { ...options, headers });
+
+  // only set JSON header if body exists
+  if (options.body && !(options.body instanceof FormData)) {
+    (headers as Record<string, string>)["Content-Type"] = "application/json";
+  }
+
+  const res = await fetch(`${API_URL}${path}`, {
+    ...options,
+    headers
+  });
+
   const json = await res.json().catch(() => ({}));
+
   if (!res.ok) {
     return {
       ok: false,
@@ -37,6 +47,7 @@ export async function api<T>(
       error: json.error,
     };
   }
+
   return json as ApiResponse<T>;
 }
 
@@ -152,7 +163,7 @@ export async function getBankStatementStats(): Promise<
   const latestUploadAt =
     list.length > 0
       ? list.reduce((latest, s) =>
-          s.created_at > latest ? s.created_at : latest
+        s.created_at > latest ? s.created_at : latest
         , list[0].created_at)
       : null;
   return {
