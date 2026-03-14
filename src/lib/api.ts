@@ -126,6 +126,14 @@ export async function listBankStatements() {
   return api<BankStatement[]>("bank-statements");
 }
 
+/**
+ * DELETE /bank-statements/:id (requires Bearer token).
+ * Success: { ok: true, data }. 404: { ok: false, message: "Bank statement not found" }.
+ */
+export async function deleteBankStatement(id: number) {
+  return api<unknown>(`bank-statements/${id}`, { method: "DELETE" });
+}
+
 /** Aggregated stats from bank statements (derived from list). */
 export type BankStatementStats = {
   count: number;

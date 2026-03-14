@@ -7,6 +7,7 @@ import {
   listBankStatements,
   uploadBankStatement,
   getBankStatementDownloadUrl,
+  deleteBankStatement,
 } from "@/lib/api";
 import type { BankStatement } from "@/lib/api";
 
@@ -25,6 +26,7 @@ export default function BankStatementsPage() {
   const [error, setError] = useState("");
   const [uploadError, setUploadError] = useState("");
   const [uploadSuccess, setUploadSuccess] = useState("");
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -83,6 +85,18 @@ export default function BankStatementsPage() {
     a.download = st.original_filename;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  async function handleDelete(st: BankStatement) {
+    if (!confirm(`Delete "${st.original_filename}"? This cannot be undone.`)) return;
+    setDeletingId(st.id);
+    const res = await deleteBankStatement(st.id);
+    setDeletingId(null);
+    if (res.ok) {
+      setStatements((prev) => prev.filter((s) => s.id !== st.id));
+    } else {
+      setError(res.message || "Delete failed");
+    }
   }
 
   if (loading) {
@@ -159,7 +173,7 @@ export default function BankStatementsPage() {
                   {new Date(st.created_at).toLocaleDateString()}
                 </p>
               </div>
-              <div className="flex gap-2 shrink-0">
+              <div className="flex gap-2 shrink-0 flex-wrap">
                 <Link
                   href={`/bank-statements/${st.id}`}
                   className="btn-primary"
@@ -172,6 +186,14 @@ export default function BankStatementsPage() {
                   className="btn-secondary"
                 >
                   Download
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(st)}
+                  disabled={deletingId === st.id}
+                  className="btn-secondary text-[var(--error)] hover:bg-red-50 hover:border-red-200"
+                >
+                  {deletingId === st.id ? "Deleting…" : "Delete"}
                 </button>
               </div>
             </li>
