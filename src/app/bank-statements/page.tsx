@@ -10,6 +10,7 @@ import {
   deleteBankStatement,
 } from "@/lib/api";
 import type { BankStatement } from "@/lib/api";
+import { formatReportDate } from "@/lib/format";
 import { Download, Trash2 } from "lucide-react";
 
 function formatBytes(bytes: number) {
@@ -166,7 +167,7 @@ export default function BankStatementsPage() {
                 <p className="font-medium truncate">{st.original_filename}</p>
                 <p className="text-sm text-[var(--muted)]">
                   {formatBytes(st.file_size)} ·{" "}
-                  {new Date(st.created_at).toLocaleDateString()}
+                  {formatReportDate(st.created_at)}
                 </p>
               </div>
               <div className="flex items-center gap-2 shrink-0">

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getProfile, updateProfile, logout } from "@/lib/api";
 import type { User } from "@/lib/api";
+import { formatReportDate } from "@/lib/format";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -120,7 +121,7 @@ export default function ProfilePage() {
           </div>
           {user && (
             <p className="text-sm text-[var(--muted)]">
-              Member since {new Date(user.created_at).toLocaleDateString()}
+              Member since {formatReportDate(user.created_at)}
             </p>
           )}
           {message && <p className="text-sm text-[var(--success)]">{message}</p>}

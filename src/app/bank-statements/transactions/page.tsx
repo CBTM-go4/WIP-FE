@@ -6,6 +6,7 @@ import Link from "next/link";
 import { listBankStatements, getStatementTransactions } from "@/lib/api";
 import type { BankStatement, TransactionItem } from "@/lib/api";
 import { DEMO_HIDE_AMOUNTS } from "@/lib/demo";
+import { formatReportDate } from "@/lib/format";
 
 type TransactionWithStatement = TransactionItem & {
   statementId: number;
@@ -331,7 +332,7 @@ export default function AllTransactionsPage() {
                       className="border-b border-[var(--border)] last:border-0 hover:bg-gray-50/50"
                     >
                       <td className="py-3 px-4 text-[var(--text)] whitespace-nowrap">
-                        {new Date(t.date).toLocaleDateString()}
+                        {formatReportDate(t.date)}
                       </td>
                       <td className="py-3 px-4 text-[var(--text)]">
                         <Link

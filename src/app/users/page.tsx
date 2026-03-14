@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { listUsers } from "@/lib/api";
 import type { User } from "@/lib/api";
+import { formatReportDate } from "@/lib/format";
 
 export default function UsersPage() {
   const router = useRouter();
@@ -65,7 +66,7 @@ export default function UsersPage() {
                 <p className="text-sm text-[var(--muted)]">{user.email}</p>
               </div>
               <span className="text-xs text-[var(--muted)]">
-                {new Date(user.created_at).toLocaleDateString()}
+                {formatReportDate(user.created_at)}
               </span>
             </li>
           ))}

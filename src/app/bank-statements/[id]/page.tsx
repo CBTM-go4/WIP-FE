@@ -18,6 +18,7 @@ import type {
   RecurringPaymentItem,
 } from "@/lib/api";
 import { DEMO_HIDE_AMOUNTS } from "@/lib/demo";
+import { formatReportDate } from "@/lib/format";
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-ZA", {
@@ -448,8 +449,8 @@ export default function StatementDashboardPage() {
                       {r.transaction_count > 0 &&
                         ` · ${r.transaction_count} transaction${r.transaction_count !== 1 ? "s" : ""}`}
                       {" · "}
-                      First: {new Date(r.first_seen).toLocaleDateString()} · Last:{" "}
-                      {new Date(r.last_seen).toLocaleDateString()}
+                      First: {formatReportDate(r.first_seen)} · Last:{" "}
+                      {formatReportDate(r.last_seen)}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
@@ -539,7 +540,7 @@ export default function StatementDashboardPage() {
                       className="border-b border-[var(--border)] last:border-0 hover:bg-gray-50/50"
                     >
                       <td className="py-3 px-4 text-[var(--text)] whitespace-nowrap">
-                        {new Date(t.date).toLocaleDateString()}
+                        {formatReportDate(t.date)}
                       </td>
                       <td className="py-3 px-4 text-[var(--text)]" title={t.description ?? undefined}>                       
                         {t.normalized_description ?? t.description}
