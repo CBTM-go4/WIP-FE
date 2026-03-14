@@ -207,7 +207,10 @@ export type TransactionItem = {
   date: string;
   description: string;
   amount: number;
-  category?: string;
+  balance?: number | null;
+  category: string | null;
+  txn_type?: string;
+  txn_direction?: string;
 };
 
 export type RecurringPaymentItem = {
