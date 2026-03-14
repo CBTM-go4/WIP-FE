@@ -343,7 +343,9 @@ export default function AllTransactionsPage() {
                         {t.description}
                       </td>
                       <td className="py-3 px-4 text-[var(--muted)] hidden sm:table-cell">
-                        {t.category ?? "—"}
+                        {t.category
+                          ? t.category.charAt(0).toUpperCase() + t.category.slice(1)
+                          : "—"}
                       </td>
                       <td
                         className={`py-3 px-4 text-right font-medium whitespace-nowrap ${
