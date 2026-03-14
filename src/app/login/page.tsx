@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { login, listBankStatements, getStatementSummary } from "@/lib/api";
+import { login } from "@/lib/api";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
@@ -27,25 +27,7 @@ export default function LoginPage() {
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("auth-change"));
     }
-    const statementsRes = await listBankStatements();
-    if (!statementsRes.ok || !("data" in statementsRes) || !statementsRes.data.length) {
-      router.push("/bank-statements");
-      router.refresh();
-      setLoading(false);
-      return;
-    }
-    const summaries = await Promise.all(
-      statementsRes.data.map((st) => getStatementSummary(st.id))
-    );
-    const hasTransactions = summaries.some((s) => {
-      if (!s.ok || !("data" in s) || !s.data) {
-        return false;
-      }
-
-      const data = s.data as { transaction_count?: number };
-      return typeof data.transaction_count === "number" && data.transaction_count > 0;
-    });
-    router.push(hasTransactions ? "/bank-statements/transactions" : "/bank-statements");
+    router.push("/");
     router.refresh();
     setLoading(false);
   }

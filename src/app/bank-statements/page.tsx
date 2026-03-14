@@ -161,7 +161,16 @@ export default function BankStatementsPage() {
           {statements.map((st) => (
             <li
               key={st.id}
-              className="px-6 py-4 flex items-center justify-between gap-4 hover:bg-gray-50/80 transition-colors"
+              role="link"
+              tabIndex={0}
+              onClick={() => router.push(`/bank-statements/${st.id}`)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  router.push(`/bank-statements/${st.id}`);
+                }
+              }}
+              className="px-6 py-4 flex items-center justify-between gap-4 hover:bg-gray-50/80 transition-colors cursor-pointer"
             >
               <div className="min-w-0 flex-1">
                 <p className="font-medium truncate">{st.original_filename}</p>
@@ -170,13 +179,10 @@ export default function BankStatementsPage() {
                   {formatReportDate(st.created_at)}
                 </p>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <Link
-                  href={`/bank-statements/${st.id}`}
-                  className="btn-primary"
-                >
+              <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
+                <span className="text-sm text-[var(--accent)] font-medium">
                   Dashboard
-                </Link>
+                </span>
                 <button
                   type="button"
                   onClick={() => handleDownload(st)}

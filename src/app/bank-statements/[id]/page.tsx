@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import {
+  listBankStatements,
   getStatementSummary,
   getSpendingByMonth,
   getSpendingByCategory,
@@ -58,6 +59,7 @@ export default function StatementDashboardPage() {
   const params = useParams();
   const statementId = params?.id ? Number(params.id) : null;
 
+  const [statementFilename, setStatementFilename] = useState<string | null>(null);
   const [summary, setSummary] = useState<StatementSummary | null>(null);
   const [byMonth, setByMonth] = useState<SpendingByMonthItem[]>([]);
   const [byCategory, setByCategory] = useState<SpendingByCategoryItem[]>([]);
@@ -143,14 +145,20 @@ export default function StatementDashboardPage() {
     (async () => {
       setLoading(true);
       setError("");
-      const [summaryRes, monthRes, categoryRes, txRes, recurringRes] =
+      const [listRes, summaryRes, monthRes, categoryRes, txRes, recurringRes] =
         await Promise.all([
+          listBankStatements(),
           getStatementSummary(statementId),
           getSpendingByMonth(statementId),
           getSpendingByCategory(statementId),
           getStatementTransactions(statementId),
           getRecurringPayments(statementId),
         ]);
+
+      if (listRes.ok && "data" in listRes) {
+        const st = listRes.data.find((s) => s.id === statementId);
+        setStatementFilename(st?.original_filename ?? null);
+      }
 
       if (!summaryRes.ok) {
         if (summaryRes.message === "Invalid token") {
@@ -204,7 +212,7 @@ export default function StatementDashboardPage() {
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight">
-          Statement #{statementId}
+          {statementFilename ?? `Statement #${statementId}`}
         </h1>
         <Link
           href="/bank-statements"
