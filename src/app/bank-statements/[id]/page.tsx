@@ -541,8 +541,8 @@ export default function StatementDashboardPage() {
                       <td className="py-3 px-4 text-[var(--text)] whitespace-nowrap">
                         {new Date(t.date).toLocaleDateString()}
                       </td>
-                      <td className="py-3 px-4 text-[var(--text)]">
-                        {t.description}
+                      <td className="py-3 px-4 text-[var(--text)]" title={t.description ?? undefined}>                       
+                        {t.normalized_description ?? t.description}
                       </td>
                       <td className="py-3 px-4 text-[var(--muted)] hidden sm:table-cell">
                         {t.category
