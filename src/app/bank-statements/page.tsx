@@ -8,6 +8,7 @@ import {
   uploadBankStatement,
   getBankStatementDownloadUrl,
   deleteBankStatement,
+  getStatementSummary,
 } from "@/lib/api";
 import type { BankStatement } from "@/lib/api";
 import { formatReportDate } from "@/lib/format";
@@ -28,7 +29,12 @@ export default function BankStatementsPage() {
   const [error, setError] = useState("");
   const [uploadError, setUploadError] = useState("");
   const [uploadSuccess, setUploadSuccess] = useState("");
+  const [parsingStatementId, setParsingStatementId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const POLL_INTERVAL_MS = 2000;
+  const POLL_MAX_ATTEMPTS = 60; // 2 minutes
 
   useEffect(() => {
     (async () => {
@@ -67,12 +73,51 @@ export default function BankStatementsPage() {
     setUploading(false);
     input.value = "";
     if (res.ok && "data" in res) {
-      setUploadSuccess(`Uploaded "${res.data.original_filename}".`);
-      setStatements((prev) => [res.data, ...prev]);
+      const newStatement = res.data;
+      setUploadSuccess(`Uploaded "${newStatement.original_filename}". Parsing…`);
+      setStatements((prev) => [newStatement, ...prev]);
+      setParsingStatementId(newStatement.id);
     } else {
       setUploadError(res.message || "Upload failed");
     }
   }
+
+  // Poll for parsing completion when we have a newly uploaded statement
+  useEffect(() => {
+    if (parsingStatementId == null) return;
+    let cancelled = false;
+    let attempts = 0;
+    const runPoll = async () => {
+      if (cancelled || attempts >= POLL_MAX_ATTEMPTS) {
+        if (!cancelled && attempts >= POLL_MAX_ATTEMPTS) {
+          setUploadSuccess((prev) =>
+            prev ? prev.replace(/\s*Parsing…\.?$/, " — still processing. Refresh to check.") : prev
+          );
+        }
+        setParsingStatementId(null);
+        return;
+      }
+      attempts += 1;
+      const summaryRes = await getStatementSummary(parsingStatementId);
+      if (cancelled) return;
+      if (summaryRes.ok && "data" in summaryRes) {
+        setUploadSuccess((prev) =>
+          prev ? prev.replace(/\s*Parsing…\.?$/, " Parsing complete.") : prev
+        );
+        setParsingStatementId(null);
+        return;
+      }
+      pollTimeoutRef.current = setTimeout(runPoll, POLL_INTERVAL_MS);
+    };
+    pollTimeoutRef.current = setTimeout(runPoll, POLL_INTERVAL_MS);
+    return () => {
+      cancelled = true;
+      if (pollTimeoutRef.current) {
+        clearTimeout(pollTimeoutRef.current);
+        pollTimeoutRef.current = null;
+      }
+    };
+  }, [parsingStatementId]);
 
   async function handleDownload(st: BankStatement) {
     const url = await getBankStatementDownloadUrl(st.id);
