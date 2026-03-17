@@ -470,7 +470,7 @@ export default function Home() {
                         </p>
                       </div>
                     </div>
-                    {stmt.months.length > 0 && (
+                    {/* {stmt.months.length > 0 && (
                       <div className="mt-4 pt-3 border-t border-[var(--border)]">
                         <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 gap-y-1.5 text-sm">
                           <span className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] py-0.5">
@@ -503,7 +503,7 @@ export default function Home() {
                           ))}
                         </div>
                       </div>
-                    )}
+                    )} */}
                   </div>
                 )}
               </div>
