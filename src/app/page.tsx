@@ -7,7 +7,7 @@ import { listBankStatements, getStatementTransactions } from "@/lib/api";
 import type { BankStatement, TransactionItem } from "@/lib/api";
 import { DEMO_HIDE_AMOUNTS } from "@/lib/demo";
 import { formatReportDate, formatMonthLabel, formatStatementTitle } from "@/lib/format";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, ChevronDown, ChevronRight } from "lucide-react";
 
 type TransactionWithStatement = TransactionItem & {
   statementId: number;
@@ -59,7 +59,6 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
-  const [statementFilter, setStatementFilter] = useState<string>("");
   const [showAllTransactions, setShowAllTransactions] = useState(false);
   const [expandedStatementCards, setExpandedStatementCards] = useState<
     Set<number>
@@ -122,41 +121,8 @@ export default function Home() {
     })();
   }, [router]);
 
-  const statementOptions = useMemo(() => {
-    const byStmt = new Map<number, { label: string; dates: string[] }>();
-    for (const t of transactions) {
-      const ex = byStmt.get(t.statementId);
-      if (!ex) {
-        byStmt.set(t.statementId, {
-          label: t.statementLabel,
-          dates: t.date ? [t.date] : [],
-        });
-      } else if (t.date) {
-        ex.dates.push(t.date);
-      }
-    }
-    return Array.from(byStmt.entries()).map(([id, { label, dates }]) => {
-      const dateRange =
-        dates.length > 0
-          ? {
-              min: dates.reduce((a, b) => (a < b ? a : b)),
-              max: dates.reduce((a, b) => (a > b ? a : b)),
-            }
-          : null;
-      return {
-        id,
-        label,
-        title: formatStatementTitle(label, dateRange),
-      };
-    });
-  }, [transactions]);
-
   const filteredTransactions = useMemo(() => {
     let list = transactions;
-    if (statementFilter) {
-      const id = Number(statementFilter);
-      if (!Number.isNaN(id)) list = list.filter((t) => t.statementId === id);
-    }
     if (!search.trim()) return list;
     const q = search.trim().toLowerCase();
     return list.filter(
@@ -167,7 +133,7 @@ export default function Home() {
         String(t.amount).includes(q) ||
         t.statementLabel.toLowerCase().includes(q)
     );
-  }, [transactions, search, statementFilter]);
+  }, [transactions, search]);
 
   const sortedTransactions = useMemo(() => {
     const list = [...filteredTransactions];
@@ -298,16 +264,14 @@ export default function Home() {
     return result;
   }, [filteredTransactions]);
 
-  // Expand only the latest (first) statement card by default.
+  // Expand all statement cards by default.
   useEffect(() => {
     if (
       totalsByStatement.length > 0 &&
       !hasSetInitialStatementExpand.current
     ) {
       hasSetInitialStatementExpand.current = true;
-      setExpandedStatementCards(
-        new Set([totalsByStatement[0].statementId])
-      );
+      setExpandedStatementCards(new Set(totalsByStatement.map((s) => s.statementId)));
     }
   }, [totalsByStatement]);
 
@@ -354,42 +318,44 @@ export default function Home() {
       </div>
 
       {/* Summary cards */}
-      <section className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <div className="card card-hover">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-1">
-            Transactions
-          </p>
-          <p className="text-xl font-bold text-[var(--text)]">
-            {filteredTransactions.length}
-          </p>
-        </div>
+      <section className="grid gap-4 md:grid-cols-[minmax(0,2fr)_auto_minmax(0,1fr)] md:items-stretch">
         <div className="card card-hover">
           <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-1">
             Net total
           </p>
           <p
-            className={`text-xl font-bold ${
+            className={`text-3xl font-bold ${
               filteredTotal >= 0 ? "text-[var(--success)]" : "text-[var(--error)]"
             }`}
           >
             {formatDisplayAmount(filteredTotal)}
           </p>
         </div>
-        <div className="card card-hover">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-1">
-            Total spent
-          </p>
-          <p className="text-xl font-bold text-[var(--error)]">
-            {formatDisplayAmount(totalSpent)}
-          </p>
+        <div className="hidden md:flex flex-col items-center justify-center gap-6 px-1">
+          <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-red-500/15 text-[var(--error)] border border-red-400/25">
+            <ArrowUpRight className="w-5 h-5" />
+          </span>
+          <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-emerald-500/15 text-[var(--success)] border border-emerald-400/25">
+            <ArrowDownLeft className="w-5 h-5" />
+          </span>
         </div>
-        <div className="card card-hover">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-1">
-            Total received
-          </p>
-          <p className="text-xl font-bold text-[var(--success)]">
-            {formatDisplayAmount(totalReceived)}
-          </p>
+        <div className="grid gap-4">
+          <div className="card card-hover">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-1">
+              Out
+            </p>
+            <p className="text-xl font-bold text-[var(--error)]">
+              {formatDisplayAmount(totalSpent)}
+            </p>
+          </div>
+          <div className="card card-hover">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-1">
+              In
+            </p>
+            <p className="text-xl font-bold text-[var(--success)]">
+              {formatDisplayAmount(totalReceived)}
+            </p>
+          </div>
         </div>
       </section>
 
@@ -542,24 +508,6 @@ export default function Home() {
                   className="input"
                   aria-label="Search transactions"
                 />
-                <div className="flex flex-wrap items-center gap-2">
-                  <label htmlFor="statement-filter" className="text-sm text-[var(--muted)]">
-                    Statement:
-                  </label>
-                  <select
-                    id="statement-filter"
-                    value={statementFilter}
-                    onChange={(e) => setStatementFilter(e.target.value)}
-                    className="input py-1.5 max-w-xs"
-                  >
-                    <option value="">All statements</option>
-{statementOptions.map(({ id, label }) => (
-                    <option key={id} value={id}>
-                      {label}
-                    </option>
-                  ))}
-                  </select>
-                </div>
               </div>
               <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
             {filteredTransactions.length === 0 ? (
@@ -661,7 +609,7 @@ export default function Home() {
               <span className="text-sm text-[var(--muted)]">
                 {filteredTransactions.length} transaction
                 {filteredTransactions.length !== 1 ? "s" : ""}
-                {(search.trim() || statementFilter) ? " (filtered)" : ""}
+                {search.trim() ? " (filtered)" : ""}
               </span>
               <span
                 className={`font-semibold ${

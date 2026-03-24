@@ -12,7 +12,7 @@ import {
 } from "@/lib/api";
 import type { BankStatement } from "@/lib/api";
 import { formatReportDate } from "@/lib/format";
-import { ChevronRight, Download, Trash2 } from "lucide-react";
+import { ChevronRight, Download, FileUp, Trash2 } from "lucide-react";
 
 function formatBytes(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
@@ -29,6 +29,7 @@ export default function BankStatementsPage() {
   const [error, setError] = useState("");
   const [uploadError, setUploadError] = useState("");
   const [uploadSuccess, setUploadSuccess] = useState("");
+  const [isDragActive, setIsDragActive] = useState(false);
   const [parsingStatementId, setParsingStatementId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -52,18 +53,13 @@ export default function BankStatementsPage() {
     })();
   }, [router]);
 
-  async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const input = e.target;
-    if (!input.files?.length) return;
-    const file = input.files[0];
+  async function processFile(file: File) {
     if (file.type !== "application/pdf") {
       setUploadError("Only PDF files are allowed.");
-      input.value = "";
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
       setUploadError("File must be under 10 MB.");
-      input.value = "";
       return;
     }
     setUploadError("");
@@ -71,7 +67,6 @@ export default function BankStatementsPage() {
     setUploading(true);
     const res = await uploadBankStatement(file);
     setUploading(false);
-    input.value = "";
     if (res.ok && "data" in res) {
       const newStatement = res.data;
       setUploadSuccess(`Uploaded "${newStatement.original_filename}". Parsing…`);
@@ -80,6 +75,22 @@ export default function BankStatementsPage() {
     } else {
       setUploadError(res.message || "Upload failed");
     }
+  }
+
+  async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const input = e.target;
+    if (!input.files?.length) return;
+    await processFile(input.files[0]);
+    input.value = "";
+  }
+
+  async function handleDrop(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    setIsDragActive(false);
+    if (uploading) return;
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    await processFile(file);
   }
 
   // Poll for parsing completion when we have a newly uploaded statement
@@ -174,16 +185,66 @@ export default function BankStatementsPage() {
           View all transactions
         </Link>
       </div>
-      <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-3">Upload PDF</h2>
-      <div className="card card-hover mb-6">      
-        <div className="space-y-3">
+
+      <section className="mb-6">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--accent-muted)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--accent)]">
+            Upload
+          </span>
+          <h2 className="text-sm font-semibold text-[var(--text)]">Add statement PDF</h2>
+        </div>
+        <div className="card card-hover">
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => fileInputRef.current?.click()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                fileInputRef.current?.click();
+              }
+            }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              if (!uploading) setIsDragActive(true);
+            }}
+            onDragLeave={(e) => {
+              if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                setIsDragActive(false);
+              }
+            }}
+            onDrop={handleDrop}
+            className={`rounded-[var(--radius-sm)] border bg-[var(--accent-muted)]/35 p-4 mb-3 transition-colors cursor-pointer ${
+              isDragActive
+                ? "border-[var(--accent)] ring-2 ring-[var(--accent)]/35"
+                : "border-[var(--border)]"
+            } ${uploading ? "opacity-70 cursor-not-allowed" : ""}`}
+            aria-disabled={uploading}
+            aria-label="Drop in your statement"
+          >
+            <div className="flex items-start gap-3">
+              <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--accent)] shrink-0">
+                <FileUp size={18} />
+              </span>
+              <div className="space-y-1.5 min-w-0">
+                <p className="text-sm font-medium text-[var(--text)]">
+                  Drop in your statement or choose a file
+                </p>
+                <p className="text-xs text-[var(--muted)]">
+                  Drop in your statement here, or click to choose a file. PDF only, max 10 MB.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
           <input
             ref={fileInputRef}
             type="file"
             accept="application/pdf"
             onChange={handleFileSelect}
             disabled={uploading}
-            className="block w-full text-sm text-[var(--muted)] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[var(--accent)] file:text-white file:font-medium file:cursor-pointer hover:file:bg-[var(--accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="block w-full rounded-[var(--radius-sm)] border border-dashed border-[var(--border)] bg-[var(--card)]/60 p-3 text-sm text-[var(--muted)] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[var(--accent)] file:text-white file:font-medium file:cursor-pointer hover:file:bg-[var(--accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
           />
           {uploadError && (
             <p className="text-sm text-[var(--error)]">{uploadError}</p>
@@ -195,13 +256,28 @@ export default function BankStatementsPage() {
             <p className="text-sm text-[var(--muted)]">Uploading…</p>
           )}
         </div>
-        <p className="text-xs text-[var(--muted)] mt-2">
-          PDF only, max 2 MB.
-        </p>
-      </div>
+        </div>
+      </section>
 
-      <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-3">Your uploads</h2>
+      <section>
+        <div className="flex items-center justify-between gap-3 mb-3">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--accent-muted)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--accent)]">
+              Library
+            </span>
+            <h2 className="text-sm font-semibold text-[var(--text)]">Your uploads</h2>
+          </div>
+          <p className="text-xs text-[var(--muted)]">
+            {statements.length} file{statements.length === 1 ? "" : "s"}
+          </p>
+        </div>
+
       <div className="card p-0 overflow-hidden">
+        <div className="px-6 py-3 border-b border-[var(--border)] bg-[var(--accent-muted)]/20">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
+            Statement history
+          </p>
+        </div>
         <ul className="divide-y divide-[var(--border)]">
           {statements.map((st) => (
             <li
@@ -242,7 +318,7 @@ export default function BankStatementsPage() {
                   type="button"
                   onClick={() => handleDelete(st)}
                   disabled={deletingId === st.id}
-                  className="p-2 rounded-[var(--radius-sm)] text-[var(--muted)] hover:text-[var(--error)] hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-2 rounded-[var(--radius-sm)] text-[var(--muted)] hover:text-[var(--error)] hover:bg-red-500/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   aria-label={deletingId === st.id ? "Deleting…" : "Delete"}
                 >
                   <Trash2 size={20} />
@@ -257,6 +333,7 @@ export default function BankStatementsPage() {
           </p>
         )}
       </div>
+      </section>
     </div>
   );
 }
