@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { getProfile, updateProfile, logout } from "@/lib/api";
+import { getProfile, updateProfile } from "@/lib/api";
 import type { User } from "@/lib/api";
 import { formatReportDate } from "@/lib/format";
 
@@ -51,12 +51,6 @@ export default function ProfilePage() {
     } else {
       setError(res.message || "Update failed");
     }
-  }
-
-  function handleLogout() {
-    logout();
-    router.push("/");
-    router.refresh();
   }
 
   if (loading) {

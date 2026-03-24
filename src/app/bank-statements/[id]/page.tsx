@@ -61,7 +61,6 @@ export default function StatementDashboardPage() {
 
   const [statementFilename, setStatementFilename] = useState<string | null>(null);
   const [summary, setSummary] = useState<StatementSummary | null>(null);
-  const [byMonth, setByMonth] = useState<SpendingByMonthItem[]>([]);
   const [byCategory, setByCategory] = useState<SpendingByCategoryItem[]>([]);
   const [transactions, setTransactions] = useState<TransactionItem[]>([]);
   const [recurring, setRecurring] = useState<RecurringPaymentItem[]>([]);
@@ -171,7 +170,6 @@ export default function StatementDashboardPage() {
       }
 
       if (summaryRes.ok && "data" in summaryRes) setSummary(summaryRes.data);
-      if (monthRes.ok && "data" in monthRes) setByMonth(monthRes.data);
       if (categoryRes.ok && "data" in categoryRes) setByCategory(categoryRes.data);
       if (txRes.ok && "data" in txRes) setTransactions(txRes.data);
       if (recurringRes.ok && "data" in recurringRes) setRecurring(recurringRes.data);

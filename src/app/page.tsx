@@ -122,7 +122,7 @@ export default function Home() {
   }, [router]);
 
   const filteredTransactions = useMemo(() => {
-    let list = transactions;
+    const list = transactions;
     if (!search.trim()) return list;
     const q = search.trim().toLowerCase();
     return list.filter(
