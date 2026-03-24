@@ -215,7 +215,7 @@ export default function BankStatementsPage() {
                   router.push(`/bank-statements/${st.id}`);
                 }
               }}
-              className="group px-6 py-4 flex items-center justify-between gap-4 hover:bg-gray-50/80 transition-colors cursor-pointer"
+              className="group px-6 py-4 flex items-center justify-between gap-4 hover:bg-[var(--accent-muted)] transition-colors cursor-pointer"
             >
               <div className="min-w-0 flex-1">
                 <p className="font-medium truncate">{st.original_filename}</p>

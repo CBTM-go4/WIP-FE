@@ -31,7 +31,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen font-sans`}
       >
         <HeaderNav />
-        <main className="max-w-4xl mx-auto px-4 py-8">{children}</main>
+        <main className="max-w-6xl mx-auto px-4 py-8">{children}</main>
       </body>
     </html>
   );

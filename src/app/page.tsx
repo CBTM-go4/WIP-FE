@@ -518,7 +518,7 @@ export default function Home() {
           <button
             type="button"
             onClick={() => setShowAllTransactions((v) => !v)}
-            className="flex items-center justify-between w-full p-4 border-b border-[var(--border)] hover:bg-gray-50/80 transition-colors text-left"
+            className="flex items-center justify-between w-full p-4 border-b border-[var(--border)] hover:bg-[var(--accent-muted)] transition-colors text-left"
           >
             <span className="font-medium text-[var(--text)]">
               All transactions
@@ -621,7 +621,7 @@ export default function Home() {
                   {sortedTransactions.map((t) => (
                     <tr
                       key={`${t.statementId}-${t.id}`}
-                      className="border-b border-[var(--border)] last:border-0 hover:bg-gray-50/50"
+                      className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--accent-muted)]/60"
                     >
                       <td className="py-3 px-4 text-[var(--text)] whitespace-nowrap">
                         {formatReportDate(t.date)}

@@ -329,7 +329,7 @@ export default function AllTransactionsPage() {
                   {sortedTransactions.map((t) => (
                     <tr
                       key={`${t.statementId}-${t.id}`}
-                      className="border-b border-[var(--border)] last:border-0 hover:bg-gray-50/50"
+                      className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--accent-muted)]/60"
                     >
                       <td className="py-3 px-4 text-[var(--text)] whitespace-nowrap">
                         {formatReportDate(t.date)}

@@ -3,48 +3,124 @@
 @tailwind utilities;
 
 :root {
-  --bg: #f5f3ef;
-  --bg-subtle: #ebe8e3;
-  --card: #ffffff;
-  --text: #1c1917;
-  --text-soft: #44403c;
-  --muted: #78716c;
-  --accent: #0d9488;
-  --accent-hover: #0f766e;
-  --accent-muted: #ccfbf1;
-  --border: #e7e5e4;
-  --error: #b91c1c;
-  --success: #15803d;
+  --bg: #070a15;
+  --bg-subtle: #0b1020;
+  --card: rgba(20, 30, 54, 0.42);
+  --text: #e2e8f0;
+  --text-soft: #cbd5e1;
+  --muted: #94a3b8;
+  --accent: #7c8cff;
+  --accent-hover: #95a3ff;
+  --accent-muted: rgba(124, 140, 255, 0.16);
+  --border: rgba(226, 232, 240, 0.22);
+  --glass-highlight: rgba(255, 255, 255, 0.18);
+  --error: #f87171;
+  --success: #34d399;
   --radius: 0.75rem;
   --radius-sm: 0.5rem;
-  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
-  --shadow-hover: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.08);
+  --shadow: 0 10px 40px -20px rgba(12, 18, 36, 0.75);
+  --shadow-md: 0 20px 60px -24px rgba(12, 18, 36, 0.85);
+  --shadow-hover: 0 24px 70px -30px rgba(12, 18, 36, 0.9);
 }
 
 body {
   background: var(--bg);
   color: var(--text);
+  background-image:
+    radial-gradient(circle at 10% -10%, rgba(124, 140, 255, 0.34), transparent 40%),
+    radial-gradient(circle at 90% 0%, rgba(14, 165, 233, 0.22), transparent 35%),
+    linear-gradient(160deg, #070a15 10%, #0a1022 45%, #0a1125 100%);
+  min-height: 100vh;
+  position: relative;
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  width: 34rem;
+  height: 34rem;
+  border-radius: 9999px;
+  filter: blur(48px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+body::before {
+  top: -10rem;
+  left: -8rem;
+  background: radial-gradient(circle, rgba(124, 140, 255, 0.28), transparent 62%);
+}
+
+body::after {
+  right: -10rem;
+  bottom: -14rem;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.2), transparent 65%);
 }
 
 @layer components {
   .btn {
-    @apply px-4 py-2.5 rounded-[var(--radius-sm)] font-medium transition-all duration-200;
+    @apply px-4 py-2.5 rounded-[var(--radius-sm)] font-medium transition-all duration-200 border;
+    border-color: rgba(255, 255, 255, 0.16);
   }
   .btn-primary {
-    @apply btn bg-[var(--accent)] text-white shadow-sm hover:bg-[var(--accent-hover)] hover:shadow-md active:scale-[0.98];
+    @apply btn text-white active:scale-[0.98];
+    background: linear-gradient(135deg, rgba(124, 140, 255, 0.95), rgba(79, 70, 229, 0.95));
+    box-shadow:
+      0 14px 30px -18px rgba(124, 140, 255, 0.88),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+  .btn-primary:hover {
+    background: linear-gradient(135deg, rgba(149, 163, 255, 0.98), rgba(99, 102, 241, 0.98));
   }
   .btn-secondary {
-    @apply btn bg-[var(--card)] border border-[var(--border)] text-[var(--text-soft)] shadow-sm hover:bg-[var(--bg-subtle)] hover:border-[var(--muted)] active:scale-[0.98];
+    @apply btn border text-[var(--text-soft)] active:scale-[0.98];
+    border-color: var(--border);
+    background: rgba(15, 23, 42, 0.35);
+    backdrop-filter: blur(16px) saturate(150%);
+    box-shadow: inset 0 1px 0 var(--glass-highlight);
+  }
+  .btn-secondary:hover {
+    background: rgba(30, 41, 59, 0.5);
+    border-color: rgba(148, 163, 184, 0.5);
   }
   .input {
-    @apply w-full px-3.5 py-2.5 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--card)] text-[var(--text)] placeholder:text-[var(--muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-[var(--accent)] transition-shadow;
+    @apply w-full px-3.5 py-2.5 rounded-[var(--radius-sm)] border text-[var(--text)] placeholder:text-[var(--muted)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-shadow;
+    border-color: var(--border);
+    background: rgba(15, 23, 42, 0.34);
+    backdrop-filter: blur(14px) saturate(155%);
+    box-shadow: inset 0 1px 0 var(--glass-highlight);
   }
   .card {
-    @apply bg-[var(--card)] rounded-[var(--radius)] border border-[var(--border)] p-6 transition-shadow;
-    box-shadow: var(--shadow);
+    @apply rounded-[var(--radius)] border p-6 transition-shadow relative overflow-hidden;
+    background: linear-gradient(
+      160deg,
+      rgba(51, 65, 85, 0.28),
+      rgba(15, 23, 42, 0.34)
+    );
+    border-color: var(--border);
+    backdrop-filter: blur(20px) saturate(160%);
+    box-shadow:
+      var(--shadow),
+      inset 0 1px 0 var(--glass-highlight);
+  }
+  .card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      140deg,
+      rgba(255, 255, 255, 0.12) 0%,
+      rgba(255, 255, 255, 0.03) 35%,
+      transparent 62%
+    );
+    pointer-events: none;
   }
   .card-hover {
     @apply hover:shadow-md;
+    transition: transform 180ms ease, box-shadow 220ms ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
   }
 }

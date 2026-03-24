@@ -59,7 +59,7 @@ export default function UsersPage() {
           {users.map((user) => (
             <li
               key={user.id}
-              className="px-6 py-4 flex items-center justify-between hover:bg-gray-50/80 transition-colors"
+              className="px-6 py-4 flex items-center justify-between hover:bg-[var(--accent-muted)] transition-colors"
             >
               <div>
                 <p className="font-medium">{user.name}</p>

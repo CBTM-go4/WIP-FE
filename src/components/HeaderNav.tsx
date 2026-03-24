@@ -63,10 +63,10 @@ export default function HeaderNav() {
   if (!mounted) {
     return (
       <header
-        className="sticky top-0 z-20 border-b border-[var(--border)] bg-[var(--card)]/95 backdrop-blur-sm"
+        className="sticky top-0 z-20 border-b border-[var(--border)] bg-[var(--card)]/85 backdrop-blur-xl"
         style={{ boxShadow: "var(--shadow)" }}
       >
-        <nav className="max-w-4xl mx-auto px-4 py-3.5 flex items-center justify-between">
+        <nav className="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
           <Link
             href="/"
             className="text-xl font-semibold text-[var(--text)] tracking-tight"
@@ -106,7 +106,7 @@ export default function HeaderNav() {
         </button>
         {adminOpen && (
           <div
-            className="absolute right-0 top-full mt-1 py-1.5 min-w-[10rem] rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-lg z-30"
+            className="absolute right-0 top-full mt-1 py-1.5 min-w-[10rem] rounded-xl border border-[var(--border)] bg-[var(--card)] backdrop-blur-xl shadow-lg z-30"
             role="menu"
           >
             <Link
@@ -172,7 +172,7 @@ export default function HeaderNav() {
             onClick={() => setMobileOpen(false)}
           />
           <div
-            className="absolute right-0 top-full mt-1 py-2 min-w-[12rem] rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-xl z-20"
+            className="absolute right-0 top-full mt-1 py-2 min-w-[12rem] rounded-xl border border-[var(--border)] bg-[var(--card)] backdrop-blur-xl shadow-xl z-20"
             role="menu"
           >
             <Link
@@ -214,7 +214,7 @@ export default function HeaderNav() {
             <button
               type="button"
               onClick={handleLogout}
-              className="flex items-center gap-2 w-full px-4 py-3 text-sm text-left text-[var(--muted)] hover:text-[var(--error)] hover:bg-red-50/50 transition-colors"
+              className="flex items-center gap-2 w-full px-4 py-3 text-sm text-left text-[var(--muted)] hover:text-[var(--error)] hover:bg-red-500/10 transition-colors"
             >
               <LogOut size={18} />
               Log out
@@ -236,10 +236,10 @@ export default function HeaderNav() {
 
   return (
     <header
-      className="sticky top-0 z-20 border-b border-[var(--border)] bg-[var(--card)]/95 backdrop-blur-sm"
+      className="sticky top-0 z-20 border-b border-[var(--border)] bg-[var(--card)]/85 backdrop-blur-xl"
       style={{ boxShadow: "var(--shadow)" }}
     >
-      <nav className="max-w-4xl mx-auto px-4 py-3.5 flex items-center justify-between">
+      <nav className="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
         <Link
           href="/"
           className="text-xl font-semibold text-[var(--text)] tracking-tight hover:text-[var(--accent)] transition-colors"
