@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef, Fragment } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { listBankStatements, getStatementTransactions } from "@/lib/api";
@@ -60,10 +60,6 @@ export default function Home() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [showAllTransactions, setShowAllTransactions] = useState(false);
-  const [expandedStatementCards, setExpandedStatementCards] = useState<
-    Set<number>
-  >(new Set());
-  const hasSetInitialStatementExpand = useRef(false);
   const [sortKey, setSortKey] = useState<
     "date" | "statement" | "description" | "category" | "amount"
   >("date");
@@ -134,6 +130,11 @@ export default function Home() {
         t.statementLabel.toLowerCase().includes(q)
     );
   }, [transactions, search]);
+
+  const activeFilterLabel = useMemo(() => {
+    const q = search.trim();
+    return q ? `Filtered by: “${q}”` : "";
+  }, [search]);
 
   const sortedTransactions = useMemo(() => {
     const list = [...filteredTransactions];
@@ -264,26 +265,6 @@ export default function Home() {
     return result;
   }, [filteredTransactions]);
 
-  // Expand all statement cards by default.
-  useEffect(() => {
-    if (
-      totalsByStatement.length > 0 &&
-      !hasSetInitialStatementExpand.current
-    ) {
-      hasSetInitialStatementExpand.current = true;
-      setExpandedStatementCards(new Set(totalsByStatement.map((s) => s.statementId)));
-    }
-  }, [totalsByStatement]);
-
-  const toggleStatementCard = (statementId: number) => {
-    setExpandedStatementCards((prev) => {
-      const next = new Set(prev);
-      if (next.has(statementId)) next.delete(statementId);
-      else next.add(statementId);
-      return next;
-    });
-  };
-
   if (loading) {
     return (
       <div className="card max-w-4xl mx-auto text-center py-12 text-[var(--muted)]">
@@ -316,6 +297,26 @@ export default function Home() {
           View statements →
         </Link>
       </div>
+
+      {search.trim() && (
+        <div className="rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--accent-muted)]/15 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-[var(--text)] truncate">
+              {activeFilterLabel}
+            </p>
+            <p className="text-xs text-[var(--muted)]">
+              This filter affects the totals and statement blocks below.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSearch("")}
+            className="btn-secondary py-2 px-3 text-sm"
+          >
+            Clear filter
+          </button>
+        </div>
+      )}
 
       {/* Summary cards */}
       <section className="grid gap-4 md:grid-cols-[minmax(0,2fr)_auto_minmax(0,1fr)] md:items-stretch">
@@ -359,119 +360,84 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Totals by statement (collapsible cards, latest expanded by default) */}
+      {/* Totals by statement */}
       {totalsByStatement.length > 0 && (
         <section className="space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--accent-muted)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--accent)]">
+                Statements
+              </span>
+              <h2 className="text-sm font-semibold text-[var(--text)]">
+                Overview
+              </h2>
+            </div>
+            <p className="text-xs text-[var(--muted)]">
+              {totalsByStatement.length} file{totalsByStatement.length === 1 ? "" : "s"}
+            </p>
+          </div>
           {totalsByStatement.map((stmt) => {
-            const isExpanded = expandedStatementCards.has(stmt.statementId);
             return (
-              <div key={stmt.statementId} className="card card-hover overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => toggleStatementCard(stmt.statementId)}
-                  className="flex items-center justify-between w-full text-left py-2 pr-2 -my-2 -mr-2"
-                >
+              <div key={stmt.statementId} className="space-y-2">
+                <div className="w-full text-left flex items-center justify-between gap-3 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--card)]/55 backdrop-blur-xl px-3 py-2">
                   <span className="flex items-center gap-2 min-w-0">
-                    <span className="text-[var(--muted)] flex-shrink-0">
-                      {isExpanded ? (
-                        <ChevronDown className="w-4 h-4" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4" />
-                      )}
+                    <span className="min-w-0">
+                      <Link
+                        href={`/bank-statements/${stmt.statementId}`}
+                        className="block text-sm font-semibold text-[var(--text)] truncate hover:text-[var(--accent)] transition-colors"
+                        title={stmt.statementLabel}
+                      >
+                        {stmt.statementTitle || stmt.statementLabel}
+                      </Link>
+                      <span className="block text-[11px] text-[var(--muted)] truncate">
+                        {stmt.dateRange
+                          ? `${formatReportDate(stmt.dateRange.min)} – ${formatReportDate(
+                              stmt.dateRange.max
+                            )}`
+                          : stmt.statementLabel}
+                      </span>
                     </span>
-                    <Link
-                      href={`/bank-statements/${stmt.statementId}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="text-[var(--accent)] hover:underline font-medium truncate"
-                      title={stmt.statementLabel}
-                    >
-                      {stmt.statementLabel}
-                    </Link>
                   </span>
-                  {!isExpanded && (
-                    <span className="text-sm text-[var(--muted)] flex-shrink-0 ml-2">
-                      {stmt.count} tx · Net {formatDisplayAmount(stmt.net)}
-                    </span>
-                  )}
-                </button>
-                {isExpanded && (
-                  <div className="pt-4 mt-2 border-t border-[var(--border)]">
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-1">
-                          Transactions
-                        </p>
-                        <p className="text-xl font-bold text-[var(--text)] tabular-nums">
-                          {stmt.count}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-1">
-                          Net total
-                        </p>
-                        <p
-                          className={`text-xl font-bold tabular-nums ${
-                            stmt.net >= 0
-                              ? "text-[var(--success)]"
-                              : "text-[var(--error)]"
-                          }`}
-                        >
-                          {formatDisplayAmount(stmt.net)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-1">
-                          Total spent
-                        </p>
-                        <p className="text-xl font-bold text-[var(--error)] tabular-nums">
-                          {formatDisplayAmount(stmt.spent)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] mb-1">
-                          Total received
-                        </p>
-                        <p className="text-xl font-bold text-[var(--success)] tabular-nums">
-                          {formatDisplayAmount(stmt.received)}
-                        </p>
-                      </div>
-                    </div>
-                    {/* {stmt.months.length > 0 && (
-                      <div className="mt-4 pt-3 border-t border-[var(--border)]">
-                        <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 gap-y-1.5 text-sm">
-                          <span className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] py-0.5">
-                            Month
-                          </span>
-                          <span className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] text-right py-0.5">
-                            Tx
-                          </span>
-                          <span className="text-xs font-semibold uppercase tracking-wider text-[var(--muted)] text-right py-0.5 min-w-[5rem]">
-                            Net
-                          </span>
-                          {stmt.months.map((m) => (
-                            <Fragment key={m.monthKey}>
-                              <span className="text-[var(--text)] py-0.5">
-                                {formatMonthLabel(m.monthKey)}
-                              </span>
-                              <span className="text-[var(--muted)] text-right tabular-nums py-0.5">
-                                {m.count}
-                              </span>
-                              <span
-                                className={`text-right font-medium tabular-nums py-0.5 ${
-                                  m.net >= 0
-                                    ? "text-[var(--success)]"
-                                    : "text-[var(--error)]"
-                                }`}
-                              >
-                                {formatDisplayAmount(m.net)}
-                              </span>
-                            </Fragment>
-                          ))}
-                        </div>
-                      </div>
-                    )} */}
+                </div>
+
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+                  <div className="rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--card)]/45 backdrop-blur-xl px-3 py-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--muted)]">
+                      Tx
+                    </p>
+                    <p className="text-base font-semibold text-[var(--text)] tabular-nums">
+                      {stmt.count}
+                    </p>
                   </div>
-                )}
+                  <div className="rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--card)]/45 backdrop-blur-xl px-3 py-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--muted)]">
+                      Net
+                    </p>
+                    <p
+                      className={`text-base font-semibold tabular-nums ${
+                        stmt.net >= 0 ? "text-[var(--success)]" : "text-[var(--error)]"
+                      }`}
+                    >
+                      {formatDisplayAmount(stmt.net)}
+                    </p>
+                  </div>
+                  <div className="rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--card)]/45 backdrop-blur-xl px-3 py-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--muted)]">
+                      Out
+                    </p>
+                    <p className="text-base font-semibold text-[var(--error)] tabular-nums">
+                      {formatDisplayAmount(stmt.spent)}
+                    </p>
+                  </div>
+                  <div className="rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--card)]/45 backdrop-blur-xl px-3 py-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--muted)]">
+                      In
+                    </p>
+                    <p className="text-base font-semibold text-[var(--success)] tabular-nums">
+                      {formatDisplayAmount(stmt.received)}
+                    </p>
+                  </div>
+                </div>
               </div>
             );
           })}
@@ -500,14 +466,30 @@ export default function Home() {
           {showAllTransactions && (
             <>
               <div className="p-4 border-b border-[var(--border)] space-y-3">
-                <input
-                  type="search"
-                  placeholder="Search by description, category, amount, statement…"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="input"
-                  aria-label="Search transactions"
-                />
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <input
+                    type="search"
+                    placeholder="Search by description, category, amount, statement…"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="input"
+                    aria-label="Search transactions"
+                  />
+                  {search.trim() && (
+                    <button
+                      type="button"
+                      onClick={() => setSearch("")}
+                      className="btn-secondary py-2.5 px-3 whitespace-nowrap"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+                {search.trim() && (
+                  <p className="text-xs text-[var(--muted)]">
+                    You’re viewing a filtered dashboard — totals and statement blocks above reflect this search.
+                  </p>
+                )}
               </div>
               <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
             {filteredTransactions.length === 0 ? (
